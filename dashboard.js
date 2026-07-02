@@ -115,3 +115,23 @@ class MobileDashboard extends HTMLElement {
     }
 }
 customElements.define('mobile-dashboard', MobileDashboard);
+// Fungsi universal untuk mencatat aktivitas dari menu mana pun
+window.catatAktivitas = function(tipe, pesan) {
+    // 1. Ambil riwayat lama dari penyimpanan browser (atau bisa diganti Firebase nanti)
+    let riwayat = JSON.parse(localStorage.getItem('log_gudang')) || [];
+    
+    // 2. Ambil waktu saat ini (WIB)
+    const sekarang = new Date();
+    const jam = sekarang.getHours().toString().padStart(2, '0');
+    const menit = ...sekarang.getMinutes().toString().padStart(2, '0');
+    const waktuStr = `${jam}:${menit} WIB`;
+
+    // 3. Masukkan data riwayat baru ke baris paling atas
+    riwayat.unshift({ tipe: tipe, pesan: pesan, waktu: waktuStr });
+    
+    // 4. Batasi maksimal 20 riwayat saja agar memori HP tidak penuh
+    if (riwayat.length > 20) riwayat.pop();
+    
+    // 5. Simpan kembali
+    localStorage.setItem('log_gudang', JSON.stringify(riwayat));
+};
