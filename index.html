@@ -2,30 +2,67 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <!-- Mengoptimalkan tampilan layar agar pas dengan ukuran layar HP/Android -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ringkasan Gudang</title>
+    <!-- Menghubungkan ke file dashboard.js sebagai pengatur layout bawah -->
     <script src="dashboard.js" defer></script>
     <style>
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-        .stat-box { padding: 14px; border-radius: 10px; text-align: center; color: white; }
+        /* Pengaturan Grid untuk kotak statistik di HP */
+        .grid-2 { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            margin-bottom: 16px; 
+        }
+        .stat-box { 
+            padding: 16px; 
+            border-radius: 12px; 
+            text-align: center; 
+            color: white; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
         .bg-blue { background: #0284c7; }
         .bg-amber { background: #d97706; }
-        .stat-box h3 { margin: 0; font-size: 24px; }
+        .stat-box h3 { margin: 0; font-size: 26px; font-weight: 700; }
         .stat-box p { margin: 4px 0 0 0; font-size: 12px; opacity: 0.9; }
         
-        /* Style Log Riwayat */
-        .log-item { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        /* Desain Daftar Riwayat Aktivitas */
+        .log-item { 
+            display: flex; 
+            align-items: flex-start; 
+            padding: 12px 0; 
+            border-bottom: 1px solid #f1f5f9; 
+            font-size: 13px; 
+        }
         .log-item:last-child { border-bottom: none; }
-        .log-icon { font-size: 16px; margin-right: 10px; margin-top: 2px; }
-        .log-time { font-size: 11px; color: #94a3b8; margin-top: 3px; }
-        .empty-log { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 13px; }
+        .log-icon { font-size: 18px; margin-right: 12px; }
+        .log-time { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+        .empty-log { text-align: center; color: #94a3b8; padding: 25px 0; font-size: 13px; }
+
+        /* Style Tambahan untuk Tombol Simulasi Tes di HP */
+        .btn-grup { display: flex; gap: 8px; margin-top: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .btn-tes { 
+            flex: 1; 
+            min-width: 80px;
+            padding: 8px; 
+            border: none; 
+            border-radius: 6px; 
+            color: white; 
+            font-size: 11px; 
+            font-weight: 600; 
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Memanggil komponen navigasi mobile dengan menu aktif: dashboard -->
     <mobile-dashboard active="dashboard"></mobile-dashboard>
 
     <div class="container">
+        
+        <!-- Kotak Statistik Ringkasan -->
         <div class="grid-2">
             <div class="stat-box bg-blue">
                 <h3 id="total-item-box">0</h3>
@@ -37,27 +74,39 @@
             </div>
         </div>
 
-        <!-- Wadah Utama Riwayat Transinternal Gudang -->
+        <!-- TOMBOL SIMULASI: Untuk tes input riwayat langsung dari HP Anda -->
         <div class="app-card">
-            <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #64748b;">🔄 Semua Riwayat Aktivitas Gudang</h4>
-            <div id="wadah-riwayat">
-                <!-- Data aktivitas dari stock, sisa, dll. akan muncul di sini secara otomatis -->
+            <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #64748b;">🧪 Uji Coba Log Transaksi (Klik untuk Tes):</h4>
+            <div class="btn-grup">
+                <button class="btn-tes" style="background:#10b981;" onclick="testInput('MASUK', '📥 Barang Masuk: 50 Pcs Palet Plastik baru dimasukkan.')">Tes Masuk</button>
+                <button class="btn-tes" style="background:#0284c7;" onclick="testInput('STOK', '📦 Stok Barang: Jumlah kardus L diubah menjadi 1,250 Pcs.')">Tes Stok</button>
+                <button class="btn-tes" style="background:#f43f5e;" onclick="testInput('KRITIS', '⚠️ Stok Kritis: Lakban bening tersisa kurang dari 5 Pcs!')">Tes Kritis</button>
             </div>
         </div>
+
+        <!-- Wadah Utama Menampilkan Seluruh Riwayat -->
+        <div class="app-card">
+            <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #1e293b;">🔄 Semua Riwayat Aktivitas Gudang</h4>
+            <div id="wadah-riwayat">
+                <!-- Data dari berbagai halaman otomatis disusun di sini -->
+            </div>
+        </div>
+
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // 1. Ambil data riwayat dari penyimpanan
+        // Fungsi untuk merender ulang daftar riwayat dari penyimpanan lokal ke layar HP
+        function tampilkanRiwayat() {
             const riwayat = JSON.parse(localStorage.getItem('log_gudang')) || [];
             const wadah = document.getElementById('wadah-riwayat');
             
             if (riwayat.length === 0) {
                 wadah.innerHTML = '<div class="empty-log">Belum ada riwayat aktivitas logistik hari ini.</div>';
+                document.getElementById('total-item-box').innerText = "0";
+                document.getElementById('total-kritis-box').innerText = "0";
                 return;
             }
 
-            // 2. Loop dan tampilkan semua riwayat ke layar HP
             let htmlKonten = "";
             riwayat.forEach(item => {
                 let icon = "📝";
@@ -69,18 +118,32 @@
                     <div class="log-item">
                         <div class="log-icon">${icon}</div>
                         <div style="flex: 1;">
-                            <div>${item.pesan}</div>
+                            <div style="font-weight: 500; color: #334155;">${item.pesan}</div>
                             <div class="log-time">${item.waktu}</div>
                         </div>
                     </div>
                 `;
             });
+            
             wadah.innerHTML = htmlKonten;
 
-            // (Opsional) Mengisi angka box statistik tiruan
-            document.getElementById('total-item-box').innerText = "1,450";
-            document.getElementById('total-kritis-box').innerText = riwayat.filter(x => x.tipe === "KRITIS").length;
-        });
+            // Update angka summary box secara dinamis berdasarkan data log
+            document.getElementById('total-item-box').innerText = (1450 + riwayat.length).toString();
+            document.getElementById('total-kritis-box').innerText = riwayat.filter(x => x.tipe === "KRITIS").length.toString();
+        }
+
+        // Fungsi pemicu saat tombol simulasi diklik
+        function testInput(tipe, pesan) {
+            if (typeof window.catatAktivitas === "function") {
+                window.catatAktivitas(tipe, pesan); // Memanggil fungsi dari dashboard.js
+                tampilkanRiwayat(); // Refresh data layar secara langsung
+            } else {
+                alert("Gagal: Fungsi catatAktivitas di dashboard.js tidak ditemukan atau salah ketik!");
+            }
+        }
+
+        // Jalankan render otomatis saat halaman berhasil dibuka di HP
+        document.addEventListener("DOMContentLoaded", tampilkanRiwayat);
     </script>
 </body>
 </html>
