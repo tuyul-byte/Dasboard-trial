@@ -2,17 +2,23 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <!-- Wajib untuk optimalisasi layar HP agar tidak mengecil -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Inventori</title>
+    <title>Ringkasan Gudang</title>
     <script src="dashboard.js" defer></script>
     <style>
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
         .stat-box { padding: 14px; border-radius: 10px; text-align: center; color: white; }
         .bg-blue { background: #0284c7; }
         .bg-amber { background: #d97706; }
-        .stat-box h3 { margin: 0; font-size: 24px; font-weight: 700; }
+        .stat-box h3 { margin: 0; font-size: 24px; }
         .stat-box p { margin: 4px 0 0 0; font-size: 12px; opacity: 0.9; }
+        
+        /* Style Log Riwayat */
+        .log-item { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        .log-item:last-child { border-bottom: none; }
+        .log-icon { font-size: 16px; margin-right: 10px; margin-top: 2px; }
+        .log-time { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+        .empty-log { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -20,27 +26,61 @@
     <mobile-dashboard active="dashboard"></mobile-dashboard>
 
     <div class="container">
-        <!-- Statistik Cepat Ringkasan -->
         <div class="grid-2">
             <div class="stat-box bg-blue">
-                <h3 id="total-stok-ops">1,450</h3>
+                <h3 id="total-item-box">0</h3>
                 <p>Total Item</p>
             </div>
             <div class="stat-box bg-amber">
-                <h3 id="total-kritis-ops">3</h3>
+                <h3 id="total-kritis-box">0</h3>
                 <p>Stok Kritis</p>
             </div>
         </div>
 
-        <!-- Kartu Aktivitas Terbaru -->
+        <!-- Wadah Utama Riwayat Transinternal Gudang -->
         <div class="app-card">
-            <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #64748b;">🔄 Aktivitas Gudang Terakhir</h4>
-            <div style="font-size: 13px; line-height: 1.6;">
-                <div style="border-bottom: 1px solid #f1f5f9; padding: 8px 0;">📥 <strong>Masuk:</strong> 50 Pcs Kardus (08:30 WIB)</div>
-                <div style="border-bottom: 1px solid #f1f5f9; padding: 8px 0;">📤 <strong>Keluar:</strong> 20 Pcs Palet (09:15 WIB)</div>
+            <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #64748b;">🔄 Semua Riwayat Aktivitas Gudang</h4>
+            <div id="wadah-riwayat">
+                <!-- Data aktivitas dari stock, sisa, dll. akan muncul di sini secara otomatis -->
             </div>
         </div>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Ambil data riwayat dari penyimpanan
+            const riwayat = JSON.parse(localStorage.getItem('log_gudang')) || [];
+            const wadah = document.getElementById('wadah-riwayat');
+            
+            if (riwayat.length === 0) {
+                wadah.innerHTML = '<div class="empty-log">Belum ada riwayat aktivitas logistik hari ini.</div>';
+                return;
+            }
+
+            // 2. Loop dan tampilkan semua riwayat ke layar HP
+            let htmlKonten = "";
+            riwayat.forEach(item => {
+                let icon = "📝";
+                if (item.tipe === "STOK") icon = "📦";
+                if (item.tipe === "KRITIS") icon = "⚠️";
+                if (item.tipe === "MASUK") icon = "📥";
+
+                htmlKonten += `
+                    <div class="log-item">
+                        <div class="log-icon">${icon}</div>
+                        <div style="flex: 1;">
+                            <div>${item.pesan}</div>
+                            <div class="log-time">${item.waktu}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            wadah.innerHTML = htmlKonten;
+
+            // (Opsional) Mengisi angka box statistik tiruan
+            document.getElementById('total-item-box').innerText = "1,450";
+            document.getElementById('total-kritis-box').innerText = riwayat.filter(x => x.tipe === "KRITIS").length;
+        });
+    </script>
 </body>
 </html>
