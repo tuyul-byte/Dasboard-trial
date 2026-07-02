@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <!-- Wajib untuk optimalisasi layar HP agar tidak mengecil -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Inventori</title>
+    <script src="dashboard.js" defer></script>
+    <style>
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        .stat-box { padding: 14px; border-radius: 10px; text-align: center; color: white; }
+        .bg-blue { background: #0284c7; }
+        .bg-amber { background: #d97706; }
+        .stat-box h3 { margin: 0; font-size: 24px; font-weight: 700; }
+        .stat-box p { margin: 4px 0 0 0; font-size: 12px; opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+    <mobile-dashboard active="dashboard"></mobile-dashboard>
+
+    <div class="container">
+        <!-- Statistik Cepat Ringkasan -->
+        <div class="grid-2">
+            <div class="stat-box bg-blue">
+                <h3 id="total-stok-ops">1,450</h3>
+                <p>Total Item</p>
+            </div>
+            <div class="stat-box bg-amber">
+                <h3 id="total-kritis-ops">3</h3>
+                <p>Stok Kritis</p>
+            </div>
+        </div>
+
+        <!-- Kartu Aktivitas Terbaru -->
+        <div class="app-card">
+            <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #64748b;">🔄 Aktivitas Gudang Terakhir</h4>
+            <div style="font-size: 13px; line-height: 1.6;">
+                <div style="border-bottom: 1px solid #f1f5f9; padding: 8px 0;">📥 <strong>Masuk:</strong> 50 Pcs Kardus (08:30 WIB)</div>
+                <div style="border-bottom: 1px solid #f1f5f9; padding: 8px 0;">📤 <strong>Keluar:</strong> 20 Pcs Palet (09:15 WIB)</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
