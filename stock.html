@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stok Barang</title>
+    <script src="dashboard.js" defer></script>
+    <style>
+        .search-bar { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; margin-bottom: 14px; box-sizing: border-box; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .item-row:last-child { border-bottom: none; }
+        .badge-stok { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <mobile-dashboard active="stok"></mobile-dashboard>
+
+    <div class="container">
+        <!-- Input Pencarian -->
+        <input type="text" class="search-bar" placeholder="🔍 Cari nama barang atau SKU...">
+
+        <!-- Daftar Stok Berbasis List List Row -->
+        <div class="app-card">
+            <div class="item-row">
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">Palet Plastik Hitam</div>
+                    <div style="font-size: 11px; color: #94a3b8;">SKU: PL-009</div>
+                </div>
+                <div class="badge-stok">410 Unit</div>
+            </div>
+            
+            <div class="item-row">
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">Box Karton Ukuran L</div>
+                    <div style="font-size: 11px; color: #94a3b8;">SKU: BX-102</div>
+                </div>
+                <div class="badge-stok">1,250 Pcs</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
