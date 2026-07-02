@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stok Kritis</title>
+    <script src="dashboard.js" defer></script>
+    <style>
+        .alert-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #fff1f2; border-left: 4px solid #f43f5e; border-radius: 4px; margin-bottom: 10px; }
+        .badge-danger { background: #f43f5e; color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <mobile-dashboard active="sisa"></mobile-dashboard>
+
+    <div class="container">
+        <h3 style="font-size: 16px; margin: 0 0 12px 0; color: #64748b;">⚠️ Peringatan Stok Kritis (&lt; 10 Pcs)</h3>
+        
+        <!-- List Barang Menipis -->
+        <div class="alert-row">
+            <div>
+                <div style="font-weight: 600; font-size: 14px; color: #9f1239;">Lakban Bening 2 Inch</div>
+                <div style="font-size: 11px; color: #fda4af;">SKU: LK-02</div>
+            </div>
+            <div class="badge-danger">Sisa 3 Pcs</div>
+        </div>
+
+        <div class="alert-row">
+            <div>
+                <div style="font-weight: 600; font-size: 14px; color: #9f1239;">Kabel Tembaga 5m</div>
+                <div style="font-size: 11px; color: #fda4af;">SKU: KB-55</div>
+            </div>
+            <div class="badge-danger">Sisa 5 Pcs</div>
+        </div>
+    </div>
+
+</body>
+</html>
