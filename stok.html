@@ -4,30 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stok Barang</title>
+    <!-- Hubungkan ke file dashboard.js yang sama -->
     <script src="dashboard.js" defer></script>
     <style>
         .search-bar { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; margin-bottom: 14px; box-sizing: border-box; }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
         .item-row:last-child { border-bottom: none; }
         .badge-stok { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; }
+        
+        /* Tombol Tes Aksi untuk menambah riwayat ke dashboard */
+        .btn-update { background: #0284c7; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
 
+    <!-- Memanggil komponen navigasi mobile dengan mengaktifkan menu stok -->
     <mobile-dashboard active="stok"></mobile-dashboard>
 
     <div class="container">
         <!-- Input Pencarian -->
         <input type="text" class="search-bar" placeholder="🔍 Cari nama barang atau SKU...">
 
-        <!-- Daftar Stok Berbasis List List Row -->
+        <!-- Daftar Stok Berbasis List Row -->
         <div class="app-card">
             <div class="item-row">
                 <div>
                     <div style="font-weight: 600; font-size: 14px;">Palet Plastik Hitam</div>
                     <div style="font-size: 11px; color: #94a3b8;">SKU: PL-009</div>
                 </div>
-                <div class="badge-stok">410 Unit</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="badge-stok">410 Unit</div>
+                    <button class="btn-update" onclick="simulasiUbahStok('Palet Plastik Hitam', 410)">Edit</button>
+                </div>
             </div>
             
             <div class="item-row">
@@ -35,10 +43,23 @@
                     <div style="font-weight: 600; font-size: 14px;">Box Karton Ukuran L</div>
                     <div style="font-size: 11px; color: #94a3b8;">SKU: BX-102</div>
                 </div>
-                <div class="badge-stok">1,250 Pcs</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="badge-stok">1,250 Pcs</div>
+                    <button class="btn-update" onclick="simulasiUbahStok('Box Karton Ukuran L', 1250)">Edit</button>
+                </div>
             </div>
         </div>
     </div>
 
+    <script>
+        function simulasiUbahStok(namaBarang, jumlah) {
+            if (typeof window.catatAktivitas === "function") {
+                window.catatAktivitas("STOK", `📦 Stok Diperbarui: Data ${namaBarang} diverifikasi berjumlah ${jumlah}.`);
+                alert(`Berhasil mencatat verifikasi ${namaBarang} ke Ringkasan!`);
+            } else {
+                alert("Fungsi dashboard.js belum terbaca sempurna.");
+            }
+        }
+    </script>
 </body>
 </html>
