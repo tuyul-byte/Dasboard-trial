@@ -1,20 +1,23 @@
 // File: dashboard.js
+// Otak navigasi bawah universal untuk 3 menu utama
+
 class MobileDashboard extends HTMLElement {
     connectedCallback() {
+        // Mendeteksi halaman mana yang sedang aktif berdasarkan atribut tag HTML
         const activePage = this.getAttribute('active') || 'dashboard';
 
         this.innerHTML = `
             <style>
-                /* Reset dasar agar pas di layar HP */
+                /* RESET DASAR MOBILE */
                 body {
                     margin: 0;
-                    padding-bottom: 70px; /* Jarak agar konten tidak tertutup menu bawah */
+                    padding-bottom: 75px; /* Jarak bawah agar konten tidak tertutup menu tab */
                     background-color: #f8fafc;
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                     color: #1e293b;
                 }
 
-                /* Header Aplikasi Atas (App Bar) */
+                /* HEADER APLIKASI (APP BAR ATAS) */
                 .app-header {
                     background: #1e293b;
                     color: white;
@@ -40,7 +43,7 @@ class MobileDashboard extends HTMLElement {
                     font-weight: 600;
                 }
 
-                /* Navigasi Bawah ala APK (Bottom Navigation) */
+                /* NAVIGASI BAWAH ALA APK (BOTTOM NAVIGATION BAR) */
                 .bottom-nav {
                     position: fixed;
                     bottom: 0;
@@ -72,13 +75,17 @@ class MobileDashboard extends HTMLElement {
                     font-size: 20px;
                     margin-bottom: 3px;
                 }
+                
+                /* EFEK WARNA BIRU JIKA MENU DIPILIH/AKTIF */
                 .nav-item.active {
-                    color: #0284c7; /* Warna biru aktif */
+                    color: #0284c7; 
+                    font-weight: 600;
                 }
                 
-                /* Pengaturan Layout Konten Umum di HP */
+                /* LAYOUT WADAH KONTEN DI HP */
                 .container {
                     padding: 16px;
+                    box-sizing: border-box;
                 }
                 .app-card {
                     background: #ffffff;
@@ -90,13 +97,13 @@ class MobileDashboard extends HTMLElement {
                 }
             </style>
 
-            <!-- Header Atas -->
+            <!-- Menampilkan Header Atas -->
             <div class="app-header">
                 <div class="brand">GudangMobile v1.0</div>
-                <div class="status-badge">Firebase Online</div>
+                <div class="status-badge">Sistem Aktif</div>
             </div>
 
-            <!-- Menu Tab Bawah ala APK -->
+            <!-- MEMUNCULKAN 3 PILIHAN MENU DI BAWAH LAYAR HP -->
             <div class="bottom-nav">
                 <a href="index.html" class="nav-item ${activePage === 'dashboard' ? 'active' : ''}">
                     <span class="icon">📊</span>
@@ -114,24 +121,22 @@ class MobileDashboard extends HTMLElement {
         `;
     }
 }
+
+// Mendaftarkan elemen baru bernama <mobile-dashboard> ke mesin browser
 customElements.define('mobile-dashboard', MobileDashboard);
-// Fungsi universal untuk mencatat aktivitas dari menu mana pun
+
+// FUNGSI GLOBAL LOG AKTIVITAS (LOGISTIK)
 window.catatAktivitas = function(tipe, pesan) {
-    // 1. Ambil riwayat lama dari penyimpanan browser (atau bisa diganti Firebase nanti)
     let riwayat = JSON.parse(localStorage.getItem('log_gudang')) || [];
     
-    // 2. Ambil waktu saat ini (WIB)
     const sekarang = new Date();
     const jam = sekarang.getHours().toString().padStart(2, '0');
-    const menit = ...sekarang.getMinutes().toString().padStart(2, '0');
+    const menit = sekarang.getMinutes().toString().padStart(2, '0');
     const waktuStr = `${jam}:${menit} WIB`;
 
-    // 3. Masukkan data riwayat baru ke baris paling atas
     riwayat.unshift({ tipe: tipe, pesan: pesan, waktu: waktuStr });
     
-    // 4. Batasi maksimal 20 riwayat saja agar memori HP tidak penuh
     if (riwayat.length > 20) riwayat.pop();
     
-    // 5. Simpan kembali
     localStorage.setItem('log_gudang', JSON.stringify(riwayat));
 };
