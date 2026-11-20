@@ -213,7 +213,7 @@
 
             <div class="topbar-title-wrap">
                 <div id="topTitle" class="topbar-title">Menu Gudang</div>
-                <div id="topSub" class="topbar-sub">Staff • Admin • Tambahan</div>
+                <div id="topSub" class="topbar-sub">Admin • Staff • Tambahan</div>
             </div>
 
             <div class="d-flex align-items-center gap-1">
@@ -228,11 +228,11 @@
 
         <!-- Layar Awal Mini Menu / Icon -->
         <main id="launcherView" class="launcher-body">
-            <div class="mini-section-title">Staff</div>
-            <div id="gridStaff" class="mini-icon-grid"></div>
-
             <div class="mini-section-title">Admin</div>
             <div id="gridAdmin" class="mini-icon-grid"></div>
+
+            <div class="mini-section-title">Staff</div>
+            <div id="gridStaff" class="mini-icon-grid"></div>
 
             <div class="mini-section-title">Menu Tambahan</div>
             <div id="gridTambahan" class="mini-icon-grid"></div>
@@ -279,9 +279,9 @@
                         <div class="mb-2">
                             <label class="form-label">Bagian</label>
                             <select id="newRole" class="form-select" required>
-                                <option value="tambahan">Menu Tambahan</option>
-                                <option value="staff">Staff</option>
                                 <option value="admin">Admin</option>
+                                <option value="staff">Staff</option>
+                                <option value="tambahan">Menu Tambahan</option>
                             </select>
                         </div>
                         <div class="mb-2">
@@ -328,13 +328,13 @@
         let pendingAdminMenu = null;
 
         const DEFAULT_MENUS = [
-            { id: 'st-1', role: 'staff', judul: 'Request', ikon: 'fa-share-from-square', warna: 'text-success', url: 'request_staff.html' },
-            { id: 'st-2', role: 'staff', judul: 'Cek Stok', ikon: 'fa-boxes-stacked', warna: 'text-success', url: 'request_staff.html' },
-            { id: 'st-3', role: 'staff', judul: 'Riwayat', ikon: 'fa-clock-rotate-left', warna: 'text-success', url: 'request_staff.html' },
-
             { id: 'ad-1', role: 'admin', judul: 'Kelola Stok', ikon: 'fa-user-shield', warna: 'text-primary', url: 'admin_gudang.html' },
             { id: 'ad-2', role: 'admin', judul: 'Rekap Bln', ikon: 'fa-calendar-days', warna: 'text-primary', url: 'admin_gudang.html' },
             { id: 'ad-3', role: 'admin', judul: 'Input Stok', ikon: 'fa-square-plus', warna: 'text-primary', url: 'admin_gudang.html' },
+
+            { id: 'st-1', role: 'staff', judul: 'Request', ikon: 'fa-share-from-square', warna: 'text-success', url: 'request_staff.html' },
+            { id: 'st-2', role: 'staff', judul: 'Cek Stok', ikon: 'fa-boxes-stacked', warna: 'text-success', url: 'request_staff.html' },
+            { id: 'st-3', role: 'staff', judul: 'Riwayat', ikon: 'fa-clock-rotate-left', warna: 'text-success', url: 'request_staff.html' },
 
             { id: 'tb-1', role: 'tambahan', judul: 'Masuk / PO', ikon: 'fa-truck-ramp-box', warna: 'text-info', url: 'barang_masuk.html' },
             { id: 'tb-2', role: 'tambahan', judul: 'Opname', ikon: 'fa-clipboard-check', warna: 'text-warning', url: 'stock_opname.html' },
@@ -396,8 +396,8 @@
 
         function renderMiniMenus() {
             const grids = {
-                staff: document.getElementById('gridStaff'),
                 admin: document.getElementById('gridAdmin'),
+                staff: document.getElementById('gridStaff'),
                 tambahan: document.getElementById('gridTambahan')
             };
 
@@ -469,7 +469,7 @@
             document.getElementById('launcherView').style.display = 'block';
             document.getElementById('btnBackMenu').classList.add('d-none');
             document.getElementById('topTitle').textContent = 'Menu Gudang';
-            document.getElementById('topSub').textContent = 'Staff • Admin • Tambahan';
+            document.getElementById('topSub').textContent = 'Admin • Staff • Tambahan';
             document.getElementById('menuFrame').src = 'about:blank';
         }
 
@@ -486,8 +486,8 @@
             if (!judul || !url) return;
 
             const palette = {
-                staff: { ikon: 'fa-clipboard-check', warna: 'text-success' },
                 admin: { ikon: 'fa-sliders', warna: 'text-primary' },
+                staff: { ikon: 'fa-clipboard-check', warna: 'text-success' },
                 tambahan: { ikon: 'fa-puzzle-piece', warna: 'text-info' }
             };
             const pick = palette[role] || palette.tambahan;
