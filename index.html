@@ -2,179 +2,260 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Sistem Gudang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gudang App</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #eef2f5; font-size: 0.82rem; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        .dashboard-container {
-            max-width: 840px;
-            margin: 20px auto;
-            background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            overflow: hidden;
+        body {
+            margin: 0;
+            background-color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.76rem;
+            color: #0f172a;
         }
 
-        .app-header {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            color: white;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .app-header h4 { font-size: 1.12rem; font-weight: 700; margin-bottom: 2px; }
-        .app-header p { font-size: 0.74rem; opacity: 0.8; margin-bottom: 0; }
-
-        .btn-header {
-            font-size: 0.74rem;
-            font-weight: 600;
-            padding: 5px 12px;
-            border-radius: 50rem;
-            background: rgba(255,255,255,0.16);
+        /* Splash screen layar penuh tanpa logo */
+        #androidSplash {
+            position: fixed;
+            inset: 0;
+            background: #0f172a;
             color: #ffffff;
-            border: 1px solid rgba(255,255,255,0.3);
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
         }
-        .btn-header:hover { background: rgba(255,255,255,0.28); }
+        #androidSplash.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+        #androidSplash .splash-title {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+        }
+        #androidSplash .splash-sub {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
 
-        .section-label {
-            font-size: 0.78rem;
+        .android-shell {
+            max-width: 480px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Sticky top bar */
+        .android-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            height: 48px;
+            padding: 0 8px;
+            background: #0f172a;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+        }
+
+        .topbar-title-wrap {
+            flex: 1;
+            min-width: 0;
+            padding: 0 6px;
+        }
+        .topbar-title {
+            font-size: 0.84rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.15;
+        }
+        .topbar-sub {
+            font-size: 0.66rem;
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.1;
+        }
+
+        /* Tombol ikon tanpa border & tanpa badge */
+        .icon-only-btn {
+            width: 34px;
+            height: 34px;
+            border: none;
+            background: transparent;
+            color: #ffffff;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.88rem;
+            cursor: pointer;
+            padding: 0;
+        }
+        .icon-only-btn:active {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .launcher-body {
+            padding: 10px 10px 16px;
+        }
+
+        .mini-section-title {
+            font-size: 0.68rem;
             font-weight: 700;
             color: #475569;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 18px 0 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            letter-spacing: 0.4px;
+            margin: 10px 2px 6px;
         }
-        .section-label:first-child { margin-top: 0; }
+        .mini-section-title:first-child {
+            margin-top: 2px;
+        }
 
-        .menu-grid {
+        /* Grid mini menu / icon */
+        .mini-icon-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
         }
 
-        .menu-card {
-            background: #f8fafc;
+        .mini-icon-tile {
+            background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 18px 14px;
+            border-radius: 12px;
+            padding: 10px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            min-height: 70px;
         }
-        .menu-card:hover {
-            transform: translateY(-3px);
-            background: #ffffff;
-            border-color: #0d6efd;
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+        .mini-icon-tile:active {
+            background: #eef2ff;
+            border-color: #93c5fd;
         }
-        .menu-card i {
-            font-size: 1.85rem;
-            margin-bottom: 8px;
-            display: block;
+        .mini-icon-tile i {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
         }
-        .menu-card .menu-title {
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: #1e293b;
-            display: block;
-        }
-        .menu-card .menu-desc {
+        .mini-icon-label {
             font-size: 0.7rem;
-            color: #64748b;
-            margin-top: 2px;
-            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.15;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .frame-wrapper {
+        .frame-container {
             display: none;
-            padding: 14px;
-            background: #f8fafc;
+            flex: 1;
+            padding: 8px;
         }
-        .content-frame {
+        .app-frame {
             width: 100%;
-            min-height: 76vh;
+            height: calc(100vh - 64px);
             border: 1px solid #e2e8f0;
-            border-radius: 14px;
+            border-radius: 12px;
             background: #ffffff;
         }
 
         /* Pop-up Android Modern */
         .android-dialog-content {
-            border-radius: 24px;
+            border-radius: 22px;
             border: none;
-            background: #f8fafc;
-            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
-            padding: 8px 6px 4px;
+            background: #ffffff;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.2);
+            padding: 6px 4px 2px;
         }
-        .android-dialog-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
-        .android-dialog-body { font-size: 0.8rem; color: #475569; line-height: 1.45; }
-        .android-btn-pill { border-radius: 50rem; font-size: 0.78rem; font-weight: 600; padding: 6px 16px; }
+        .android-dialog-title { font-size: 0.88rem; font-weight: 700; color: #0f172a; }
+        .android-dialog-body { font-size: 0.76rem; color: #475569; line-height: 1.4; }
+        .android-dialog-body .form-label { font-size: 0.72rem; font-weight: 600; margin-bottom: 2px; }
+        .android-dialog-body .form-control,
+        .android-dialog-body .form-select { font-size: 0.76rem; padding: 5px 8px; border-radius: 8px; }
+        .android-btn-pill { border-radius: 50rem; font-size: 0.74rem; font-weight: 600; padding: 5px 14px; }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-container">
-        <!-- HEADER -->
-        <div class="app-header">
-            <div style="min-width: 90px;">
-                <button id="btnBackDashboard" class="btn-header d-none" onclick="kembaliKeDashboard()">
-                    <i class="fas fa-arrow-left me-1"></i>Dashboard
-                </button>
-            </div>
-            <div class="text-center flex-grow-1">
-                <h4 id="headerTitle"><i class="fas fa-gauge-high me-2"></i>Dashboard Gudang</h4>
-                <p id="headerSubtitle">Pusat akses menu Staff, Admin, dan modul tambahan</p>
-            </div>
-            <div class="text-end" style="min-width: 90px;">
-                <button class="btn-header" onclick="bukaModalTambahMenu()" title="Tambah menu baru">
-                    <i class="fas fa-plus me-1"></i>Menu
-                </button>
-            </div>
-        </div>
-
-        <!-- AREA KARTU DASHBOARD -->
-        <div id="dashboardView" class="p-3 p-md-4">
-            <div class="section-label"><i class="fas fa-user-check text-success"></i> Menu Staff</div>
-            <div id="gridStaff" class="menu-grid"></div>
-
-            <div class="section-label"><i class="fas fa-user-shield text-primary"></i> Menu Admin</div>
-            <div id="gridAdmin" class="menu-grid"></div>
-
-            <div class="section-label"><i class="fas fa-layer-group text-info"></i> Menu Tambahan</div>
-            <div id="gridTambahan" class="menu-grid"></div>
-        </div>
-
-        <!-- AREA TAMPILAN HALAMAN / MODUL TERPILIH -->
-        <div id="pageView" class="frame-wrapper">
-            <iframe id="pageFrame" class="content-frame" title="Konten Menu"></iframe>
-        </div>
+    <!-- Splash Screen Layar Penuh Tanpa Logo -->
+    <div id="androidSplash">
+        <div class="splash-title">Sistem Gudang</div>
+        <div class="splash-sub">Memuat menu...</div>
     </div>
 
-    <!-- POP-UP PIN / PASSWORD ADMIN -->
+    <div class="android-shell">
+        <!-- Sticky Top Bar -->
+        <header class="android-topbar">
+            <div class="d-flex align-items-center">
+                <button id="btnBackMenu" class="icon-only-btn d-none" onclick="kembaliKeMenuUtama()" title="Kembali">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+
+            <div class="topbar-title-wrap">
+                <div id="topTitle" class="topbar-title">Menu Gudang</div>
+                <div id="topSub" class="topbar-sub">Staff • Admin • Tambahan</div>
+            </div>
+
+            <div class="d-flex align-items-center gap-1">
+                <button id="btnLockAdmin" class="icon-only-btn d-none" onclick="kunciAksesAdmin()" title="Kunci Admin">
+                    <i class="fas fa-lock"></i>
+                </button>
+                <button class="icon-only-btn" onclick="bukaModalTambahMenu()" title="Tambah Menu">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Layar Awal Mini Menu / Icon -->
+        <main id="launcherView" class="launcher-body">
+            <div class="mini-section-title">Staff</div>
+            <div id="gridStaff" class="mini-icon-grid"></div>
+
+            <div class="mini-section-title">Admin</div>
+            <div id="gridAdmin" class="mini-icon-grid"></div>
+
+            <div class="mini-section-title">Menu Tambahan</div>
+            <div id="gridTambahan" class="mini-icon-grid"></div>
+        </main>
+
+        <!-- Konten Halaman -->
+        <section id="frameView" class="frame-container">
+            <iframe id="menuFrame" class="app-frame" title="Halaman Menu"></iframe>
+        </section>
+    </div>
+
+    <!-- Pop-up PIN / Password Admin -->
     <div class="modal fade" id="modalPinAdmin" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content android-dialog-content">
                 <div class="modal-header border-0 pb-1">
-                    <h6 class="modal-title android-dialog-title">
-                        <i class="fas fa-lock me-1 text-primary"></i>Verifikasi Admin
-                    </h6>
+                    <h6 class="modal-title android-dialog-title">PIN / Password Admin</h6>
                 </div>
-                <form id="formVerifikasiPin" onsubmit="verifikasiPinAdmin(event)">
+                <form id="formPinAdmin" onsubmit="verifikasiPinAdmin(event)">
                     <div class="modal-body android-dialog-body pt-1 pb-2">
-                        <p class="mb-2">Masukkan PIN atau password khusus untuk membuka Menu Admin.</p>
-                        <input type="password" id="inputPinAdmin" class="form-control form-control-sm" placeholder="Masukkan PIN / Password..." autocomplete="current-password" required>
-                        <div id="pinErrorMsg" class="text-danger mt-1 d-none" style="font-size: 0.74rem;">
-                            PIN atau password salah. Silakan coba lagi.
+                        <input type="password" id="inputPinAdmin" class="form-control" placeholder="Masukkan PIN atau password..." autocomplete="current-password" required>
+                        <div id="pinError" class="text-danger mt-1 d-none" style="font-size: 0.7rem;">
+                            PIN atau password salah.
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-1 d-flex justify-content-end gap-2">
@@ -186,34 +267,30 @@
         </div>
     </div>
 
-    <!-- POP-UP ANDROID MODERN: TAMBAH MENU DINAMIS -->
+    <!-- Pop-up Tambah Mini Menu -->
     <div class="modal fade" id="modalTambahMenu" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content android-dialog-content">
                 <div class="modal-header border-0 pb-1">
-                    <h6 class="modal-title android-dialog-title">Tambah Menu Baru</h6>
+                    <h6 class="modal-title android-dialog-title">Tambah Mini Menu</h6>
                 </div>
-                <form id="formTambahMenu" onsubmit="simpanMenuBaru(event)">
+                <form id="formTambahMenu" onsubmit="simpanMiniMenu(event)">
                     <div class="modal-body android-dialog-body pt-1 pb-2">
                         <div class="mb-2">
-                            <label class="form-label">Kategori</label>
-                            <select id="newMenuRole" class="form-select form-select-sm" required>
+                            <label class="form-label">Bagian</label>
+                            <select id="newRole" class="form-select" required>
                                 <option value="tambahan">Menu Tambahan</option>
-                                <option value="staff">Menu Staff</option>
-                                <option value="admin">Menu Admin</option>
+                                <option value="staff">Staff</option>
+                                <option value="admin">Admin</option>
                             </select>
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Nama Menu</label>
-                            <input type="text" id="newMenuJudul" class="form-control form-control-sm" placeholder="Contoh: Barang Masuk" required>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Keterangan Singkat</label>
-                            <input type="text" id="newMenuDesc" class="form-control form-control-sm" placeholder="Contoh: Catat kedatangan supplier">
+                            <input type="text" id="newJudul" class="form-control" placeholder="Contoh: Barang Masuk" required>
                         </div>
                         <div class="mb-1">
-                            <label class="form-label">Nama File / URL</label>
-                            <input type="text" id="newMenuUrl" class="form-control form-control-sm" placeholder="Contoh: barang_masuk.html" required>
+                            <label class="form-label">File / URL</label>
+                            <input type="text" id="newUrl" class="form-control" placeholder="Contoh: barang_masuk.html" required>
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-1 d-flex justify-content-end gap-2">
@@ -225,15 +302,15 @@
         </div>
     </div>
 
-    <!-- POP-UP INFORMASI ANDROID MODERN -->
-    <div class="modal fade" id="androidInfoModal" tabindex="-1" aria-hidden="true">
+    <!-- Pop-up Info Android Modern -->
+    <div class="modal fade" id="modalInfo" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content android-dialog-content">
                 <div class="modal-header border-0 pb-1">
-                    <h6 class="modal-title android-dialog-title" id="androidInfoTitle">Informasi</h6>
+                    <h6 class="modal-title android-dialog-title" id="infoTitle">Info</h6>
                 </div>
                 <div class="modal-body android-dialog-body pt-1 pb-2">
-                    <p id="androidInfoMessage" class="mb-0"></p>
+                    <p id="infoMsg" class="mb-0"></p>
                 </div>
                 <div class="modal-footer border-0 pt-1">
                     <button type="button" class="btn btn-primary android-btn-pill" data-bs-dismiss="modal">OK</button>
@@ -244,104 +321,106 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const STORAGE_KEY = 'gudang_dashboard_menus_v1';
+        const STORAGE_KEY = 'gudang_android_mini_menus_v1';
         const ADMIN_PIN = '1234'; // Ganti dengan PIN atau password khusus Admin Anda
 
         let adminUnlocked = false;
         let pendingAdminMenu = null;
 
         const DEFAULT_MENUS = [
-            {
-                id: 'staff-request',
-                role: 'staff',
-                judul: 'Request Barang',
-                deskripsi: 'Ajukan permintaan & cek stok',
-                ikon: 'fa-share-from-square',
-                warna: 'text-success',
-                url: 'request_staff.html'
-            },
-            {
-                id: 'admin-gudang',
-                role: 'admin',
-                judul: 'Kelola Stok & Rekap',
-                deskripsi: 'Stok, riwayat, rekap & input',
-                ikon: 'fa-user-shield',
-                warna: 'text-primary',
-                url: 'admin_gudang.html'
-            },
-            {
-                id: 'tambahan-incoming',
-                role: 'tambahan',
-                judul: 'Barang Masuk / PO',
-                deskripsi: 'Penerimaan barang supplier',
-                ikon: 'fa-truck-ramp-box',
-                warna: 'text-info',
-                url: 'barang_masuk.html'
-            },
-            {
-                id: 'tambahan-opname',
-                role: 'tambahan',
-                judul: 'Stock Opname',
-                deskripsi: 'Pengecekan fisik & selisih',
-                ikon: 'fa-clipboard-check',
-                warna: 'text-warning',
-                url: 'stock_opname.html'
-            }
+            { id: 'st-1', role: 'staff', judul: 'Request', ikon: 'fa-share-from-square', warna: 'text-success', url: 'request_staff.html' },
+            { id: 'st-2', role: 'staff', judul: 'Cek Stok', ikon: 'fa-boxes-stacked', warna: 'text-success', url: 'request_staff.html' },
+            { id: 'st-3', role: 'staff', judul: 'Riwayat', ikon: 'fa-clock-rotate-left', warna: 'text-success', url: 'request_staff.html' },
+
+            { id: 'ad-1', role: 'admin', judul: 'Kelola Stok', ikon: 'fa-user-shield', warna: 'text-primary', url: 'admin_gudang.html' },
+            { id: 'ad-2', role: 'admin', judul: 'Rekap Bln', ikon: 'fa-calendar-days', warna: 'text-primary', url: 'admin_gudang.html' },
+            { id: 'ad-3', role: 'admin', judul: 'Input Stok', ikon: 'fa-square-plus', warna: 'text-primary', url: 'admin_gudang.html' },
+
+            { id: 'tb-1', role: 'tambahan', judul: 'Masuk / PO', ikon: 'fa-truck-ramp-box', warna: 'text-info', url: 'barang_masuk.html' },
+            { id: 'tb-2', role: 'tambahan', judul: 'Opname', ikon: 'fa-clipboard-check', warna: 'text-warning', url: 'stock_opname.html' },
+            { id: 'tb-3', role: 'tambahan', judul: 'Laporan', ikon: 'fa-file-lines', warna: 'text-secondary', url: 'laporan.html' }
         ];
 
-        function muatDaftarMenu() {
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('androidSplash');
+                if (splash) {
+                    splash.classList.add('hide');
+                    setTimeout(() => splash.remove(), 350);
+                }
+            }, 600);
+        });
+
+        function muatMenu() {
             try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const parsed = JSON.parse(saved);
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
                     if (Array.isArray(parsed) && parsed.length > 0) return parsed;
                 }
             } catch (e) {}
             return [...DEFAULT_MENUS];
         }
 
-        let daftarMenu = muatDaftarMenu();
+        let daftarMenu = muatMenu();
 
-        function simpanDaftarMenu() {
+        function simpanMenu() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(daftarMenu));
             } catch (e) {}
         }
 
-        function tampilkanInfo(judul, pesan) {
-            document.getElementById('androidInfoTitle').textContent = judul;
-            document.getElementById('androidInfoMessage').textContent = pesan;
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('androidInfoModal')).show();
+        function perbaruiTombolKunciAdmin() {
+            const btnLock = document.getElementById('btnLockAdmin');
+            if (!btnLock) return;
+            if (adminUnlocked) {
+                btnLock.classList.remove('d-none');
+            } else {
+                btnLock.classList.add('d-none');
+            }
         }
 
-        function renderDashboard() {
+        function kunciAksesAdmin() {
+            adminUnlocked = false;
+            pendingAdminMenu = null;
+            perbaruiTombolKunciAdmin();
+            kembaliKeMenuUtama();
+            tampilkanInfo('Dikunci', 'Akses Admin telah dikunci kembali.');
+        }
+
+        function tampilkanInfo(judul, pesan) {
+            document.getElementById('infoTitle').textContent = judul;
+            document.getElementById('infoMsg').textContent = pesan;
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalInfo')).show();
+        }
+
+        function renderMiniMenus() {
             const grids = {
                 staff: document.getElementById('gridStaff'),
                 admin: document.getElementById('gridAdmin'),
                 tambahan: document.getElementById('gridTambahan')
             };
 
-            Object.values(grids).forEach(el => { el.innerHTML = ''; });
+            Object.values(grids).forEach(g => { g.innerHTML = ''; });
 
-            daftarMenu.forEach(menu => {
-                const targetGrid = grids[menu.role] || grids.tambahan;
-                const card = document.createElement('div');
-                card.className = 'menu-card';
-                card.onclick = () => tanganiKlikMenu(menu);
-                card.innerHTML = `
-                    <i class="fas ${menu.ikon || 'fa-folder-open'} ${menu.warna || 'text-secondary'}"></i>
-                    <span class="menu-title">${menu.judul}</span>
-                    <span class="menu-desc">${menu.deskripsi || ''}</span>
+            daftarMenu.forEach(item => {
+                const grid = grids[item.role] || grids.tambahan;
+                const tile = document.createElement('div');
+                tile.className = 'mini-icon-tile';
+                tile.onclick = () => klikMiniMenu(item);
+                tile.innerHTML = `
+                    <i class="fas ${item.ikon || 'fa-border-all'} ${item.warna || 'text-dark'}"></i>
+                    <span class="mini-icon-label">${item.judul}</span>
                 `;
-                targetGrid.appendChild(card);
+                grid.appendChild(tile);
             });
         }
 
-        function tanganiKlikMenu(menu) {
-            if (menu.role === 'admin' && !adminUnlocked) {
-                pendingAdminMenu = menu;
-                document.getElementById('formVerifikasiPin').reset();
-                document.getElementById('pinErrorMsg').classList.add('d-none');
+        function klikMiniMenu(item) {
+            if (item.role === 'admin' && !adminUnlocked) {
+                pendingAdminMenu = item;
+                document.getElementById('formPinAdmin').reset();
+                document.getElementById('pinError').classList.add('d-none');
                 const modalEl = document.getElementById('modalPinAdmin');
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modalEl.addEventListener('shown.bs.modal', () => {
@@ -350,45 +429,48 @@
                 modal.show();
                 return;
             }
-            bukaMenu(menu);
+            bukaHalamanMenu(item);
         }
 
         function verifikasiPinAdmin(event) {
             event.preventDefault();
-            const inputVal = document.getElementById('inputPinAdmin').value;
-            if (inputVal === ADMIN_PIN) {
+            const val = document.getElementById('inputPinAdmin').value;
+            if (val === ADMIN_PIN) {
                 adminUnlocked = true;
-                const targetMenu = pendingAdminMenu;
+                perbaruiTombolKunciAdmin();
+                const target = pendingAdminMenu;
                 pendingAdminMenu = null;
-                document.getElementById('pinErrorMsg').classList.add('d-none');
+                document.getElementById('pinError').classList.add('d-none');
                 bootstrap.Modal.getOrCreateInstance(document.getElementById('modalPinAdmin')).hide();
-                if (targetMenu) bukaMenu(targetMenu);
+                if (target) bukaHalamanMenu(target);
             } else {
-                document.getElementById('pinErrorMsg').classList.remove('d-none');
-                const inputEl = document.getElementById('inputPinAdmin');
-                inputEl.value = '';
-                inputEl.focus();
+                document.getElementById('pinError').classList.remove('d-none');
+                const inp = document.getElementById('inputPinAdmin');
+                inp.value = '';
+                inp.focus();
             }
         }
 
-        function bukaMenu(menu) {
-            document.getElementById('dashboardView').style.display = 'none';
-            document.getElementById('pageView').style.display = 'block';
-            document.getElementById('btnBackDashboard').classList.remove('d-none');
-            document.getElementById('headerTitle').innerHTML = `<i class="fas ${menu.ikon || 'fa-folder-open'} me-2"></i>${menu.judul}`;
-            document.getElementById('headerSubtitle').textContent = menu.deskripsi || menu.url;
-
-            const frame = document.getElementById('pageFrame');
-            frame.src = menu.url;
+        function bukaHalamanMenu(item) {
+            document.getElementById('launcherView').style.display = 'none';
+            document.getElementById('frameView').style.display = 'block';
+            document.getElementById('btnBackMenu').classList.remove('d-none');
+            document.getElementById('topTitle').textContent = item.judul;
+            document.getElementById('topSub').textContent = item.url;
+            document.getElementById('menuFrame').src = item.url;
         }
 
-        function kembaliKeDashboard() {
-            document.getElementById('pageView').style.display = 'none';
-            document.getElementById('dashboardView').style.display = 'block';
-            document.getElementById('btnBackDashboard').classList.add('d-none');
-            document.getElementById('headerTitle').innerHTML = `<i class="fas fa-gauge-high me-2"></i>Dashboard Gudang`;
-            document.getElementById('headerSubtitle').textContent = 'Pusat akses menu Staff, Admin, dan modul tambahan';
-            document.getElementById('pageFrame').src = 'about:blank';
+        function kembaliKeMenuUtama() {
+            adminUnlocked = false;
+            pendingAdminMenu = null;
+            perbaruiTombolKunciAdmin();
+
+            document.getElementById('frameView').style.display = 'none';
+            document.getElementById('launcherView').style.display = 'block';
+            document.getElementById('btnBackMenu').classList.add('d-none');
+            document.getElementById('topTitle').textContent = 'Menu Gudang';
+            document.getElementById('topSub').textContent = 'Staff • Admin • Tambahan';
+            document.getElementById('menuFrame').src = 'about:blank';
         }
 
         function bukaModalTambahMenu() {
@@ -396,41 +478,37 @@
             bootstrap.Modal.getOrCreateInstance(document.getElementById('modalTambahMenu')).show();
         }
 
-        function simpanMenuBaru(event) {
+        function simpanMiniMenu(event) {
             event.preventDefault();
-            const role = document.getElementById('newMenuRole').value;
-            const judul = document.getElementById('newMenuJudul').value.trim();
-            const deskripsi = document.getElementById('newMenuDesc').value.trim();
-            const url = document.getElementById('newMenuUrl').value.trim();
-
+            const role = document.getElementById('newRole').value;
+            const judul = document.getElementById('newJudul').value.trim();
+            const url = document.getElementById('newUrl').value.trim();
             if (!judul || !url) return;
 
-            const iconByRole = {
-                staff: { ikon: 'fa-clipboard-list', warna: 'text-success' },
+            const palette = {
+                staff: { ikon: 'fa-clipboard-check', warna: 'text-success' },
                 admin: { ikon: 'fa-sliders', warna: 'text-primary' },
                 tambahan: { ikon: 'fa-puzzle-piece', warna: 'text-info' }
             };
-            const stylePick = iconByRole[role] || iconByRole.tambahan;
+            const pick = palette[role] || palette.tambahan;
 
             daftarMenu.push({
                 id: `${role}-${Date.now()}`,
                 role,
                 judul,
-                deskripsi,
-                ikon: stylePick.ikon,
-                warna: stylePick.warna,
+                ikon: pick.ikon,
+                warna: pick.warna,
                 url
             });
 
-            simpanDaftarMenu();
-            renderDashboard();
-
-            const modalEl = document.getElementById('modalTambahMenu');
-            bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-            tampilkanInfo('Menu Ditambahkan', `Menu "${judul}" berhasil ditambahkan ke dashboard.`);
+            simpanMenu();
+            renderMiniMenus();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalTambahMenu')).hide();
+            tampilkanInfo('Tersimpan', `Mini menu "${judul}" ditambahkan.`);
         }
 
-        renderDashboard();
+        perbaruiTombolKunciAdmin();
+        renderMiniMenus();
     </script>
 </body>
 </html>
