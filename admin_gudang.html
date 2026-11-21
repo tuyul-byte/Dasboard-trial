@@ -2,115 +2,144 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Stok & Rekap - Admin Gudang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Gudang</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        body { background-color: #eef2f5; font-size: 0.82rem; }
-        
-        #splashScreen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
-            color: white;
+        body {
+            margin: 0;
+            background-color: #f8fafc;
+            font-size: 0.78rem;
+            color: #0f172a;
+        }
+        .embed-shell {
+            padding: 8px;
+        }
+        .mini-status-bar {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            z-index: 99999;
-            transition: opacity 0.6s ease, visibility 0.6s ease;
-        }
-        #splashScreen.fade-out { opacity: 0; visibility: hidden; }
-        .splash-icon { font-size: 4.5rem; animation: bounce 1.5s infinite; margin-bottom: 20px; }
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-            40% {transform: translateY(-15px);}
-            60% {transform: translateY(-8px);}
-        }
-
-        .mobile-container {
-            max-width: 840px;
-            margin: 20px auto;
+            justify-content: space-between;
+            gap: 8px;
             background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            overflow: hidden;
-            position: relative;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 6px 10px;
+            margin-bottom: 8px;
+            font-size: 0.72rem;
         }
-
-        .app-header {
-            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
-            color: white;
-            padding: 16px 20px;
-            text-align: center;
+        .connection-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            color: #0b5ed7;
         }
-        .app-header h4 { font-size: 1.15rem; font-weight: 700; margin-bottom: 2px; }
-        .app-header p { font-size: 0.75rem; opacity: 0.85; margin-bottom: 8px; }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-dot.connecting { background-color: #ffc107; }
+        .status-dot.connected { background-color: #198754; box-shadow: 0 0 5px #198754; }
+        .status-dot.error { background-color: #dc3545; }
 
-        .form-label { font-size: 0.78rem; font-weight: 600; margin-bottom: 2px; }
-        .form-control, .form-select { font-size: 0.8rem; padding: 6px 10px; border-radius: 8px; }
-        .btn { font-size: 0.8rem; padding: 6px 14px; border-radius: 8px; }
+        .btn-back-menu {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 50rem;
+            background: #e7f1ff;
+            color: #0b5ed7;
+            border: 1px solid #9ec5fe;
+            cursor: pointer;
+        }
+        .btn-back-menu:active { background: #cfe2ff; }
+
+        .form-label { font-size: 0.74rem; font-weight: 600; margin-bottom: 2px; color: #334155; }
+        .form-control, .form-select { font-size: 0.76rem; padding: 5px 8px; border-radius: 8px; }
+        .btn { font-size: 0.76rem; padding: 5px 12px; border-radius: 8px; }
 
         .table-excel th {
-            background-color: #f1f3f5;
-            color: #495057;
-            border-bottom: 2px solid #ced4da;
-            font-size: 0.72rem;
+            background-color: #f1f5f9;
+            color: #334155;
+            border-bottom: 1px solid #cbd5e1;
+            font-size: 0.68rem;
             text-transform: uppercase;
-            padding: 6px;
+            padding: 5px 6px;
         }
-        .table-excel td { font-size: 0.75rem; vertical-align: middle; color: #212529; padding: 4px 6px !important; }
-        .table-container { max-height: 420px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px; }
+        .table-excel td {
+            font-size: 0.73rem;
+            vertical-align: middle;
+            color: #1e293b;
+            padding: 4px 6px !important;
+        }
+        .table-container {
+            max-height: calc(100vh - 175px);
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #ffffff;
+        }
 
         .group-header-row td {
             background-color: #e7f1ff !important;
             color: #0b5ed7 !important;
             font-weight: 700;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             border-top: 2px solid #9ec5fe;
         }
 
-        .dashboard-menu-wrapper { padding: 30px 20px; background: #ffffff; text-align: center; }
-        .dashboard-title { font-size: 0.9rem; font-weight: 600; color: #495057; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .icon-menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-width: 550px; margin: 0 auto; }
+        .dashboard-menu-wrapper {
+            padding: 16px 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .dashboard-title {
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .icon-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
         .icon-menu-card {
-            background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 16px;
-            padding: 20px 10px; text-align: center; cursor: pointer;
-            transition: all 0.25s ease-in-out; box-shadow: 0 2px 6px rgba(0,0,0,0.02); position: relative;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
         .icon-menu-card:hover {
-            transform: translateY(-4px); box-shadow: 0 6px 15px rgba(13, 110, 253, 0.15);
-            border-color: #0d6efd; background: #ffffff;
+            border-color: #0d6efd;
+            background: #ffffff;
         }
-        .icon-menu-card i { font-size: 2rem; margin-bottom: 8px; display: block; }
-        .icon-menu-card span { font-size: 0.8rem; font-weight: 700; color: #334155; display: block; }
-
-        .btn-back-menu {
-            font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 50rem;
-            background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4);
-            cursor: pointer; transition: background 0.2s;
-        }
-        .btn-back-menu:hover { background: rgba(255,255,255,0.35); }
-
-        .connection-indicator {
-            display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 500;
-            padding: 3px 10px; border-radius: 50rem; background-color: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        .status-dot.connecting { background-color: #ffc107; }
-        .status-dot.connected { background-color: #ffffff; box-shadow: 0 0 6px #ffffff; }
-        .status-dot.error { background-color: #dc3545; }
+        .icon-menu-card i { font-size: 1.45rem; margin-bottom: 6px; display: block; }
+        .icon-menu-card span { font-size: 0.74rem; font-weight: 700; color: #1e293b; display: block; }
 
         .android-dialog-content {
-            border-radius: 24px; border: none; background: #f8fafc;
-            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22); padding: 8px 6px 4px;
+            border-radius: 22px;
+            border: none;
+            background: #ffffff;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.2);
+            padding: 6px 4px 2px;
         }
-        .android-dialog-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
-        .android-dialog-body { font-size: 0.8rem; color: #475569; line-height: 1.45; }
-        .android-btn-pill { border-radius: 50rem; font-size: 0.78rem; font-weight: 600; padding: 6px 16px; }
+        .android-dialog-title { font-size: 0.88rem; font-weight: 700; color: #0f172a; }
+        .android-dialog-body { font-size: 0.76rem; color: #475569; line-height: 1.4; }
+        .android-btn-pill { border-radius: 50rem; font-size: 0.74rem; font-weight: 600; padding: 5px 14px; }
     </style>
 </head>
 <body>
@@ -119,43 +148,32 @@
         <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
     </audio>
 
-    <div id="splashScreen">
-        <div class="splash-icon"><i class="fas fa-user-shield"></i></div>
-        <h3 class="fw-bold mb-1">Admin Gudang</h3>
-        <p class="text-white-50 mb-4">Sistem Kontrol & Manajemen Stok</p>
-        <div class="spinner-border text-light" role="status"></div>
-    </div>
-
-    <div class="mobile-container">
-        <div class="app-header d-flex justify-content-between align-items-center">
-            <div id="headerBackBtn" style="visibility: hidden;">
-                <button class="btn-back-menu" onclick="kembaliKeMenuUtama()">
-                    <i class="fas fa-arrow-left me-1"></i> Menu
+    <div class="embed-shell">
+        <div class="mini-status-bar">
+            <div class="d-flex align-items-center gap-2">
+                <button id="headerBackBtn" class="btn-back-menu d-none" onclick="kembaliKeMenuUtama()">
+                    <i class="fas fa-arrow-left me-1"></i>Menu Admin
                 </button>
+                <span id="pageContextLabel" class="fw-semibold text-secondary">Menu Admin</span>
             </div>
-            <div class="text-center flex-grow-1">
-                <h4><i class="fas fa-user-shield me-2"></i>Admin Gudang</h4>
-                <p id="headerSubtitle" class="mb-1">Pilih menu di bawah untuk mengelola gudang</p>
-                <div id="connectionStatus" class="connection-indicator">
-                    <span class="status-dot connecting" id="statusDot"></span>
-                    <span id="statusText">Menghubungkan...</span>
-                </div>
+            <div id="connectionStatus" class="connection-indicator">
+                <span class="status-dot connecting" id="statusDot"></span>
+                <span id="statusText">Menghubungkan...</span>
             </div>
-            <div style="visibility: hidden;"><button class="btn-back-menu">Menu</button></div>
         </div>
 
         <div id="dashboardMenu" class="dashboard-menu-wrapper">
-            <div class="dashboard-title"><i class="fas fa-th-large me-1"></i> Pilih Menu Utama</div>
+            <div class="dashboard-title">Pilih Menu Admin</div>
             <div class="icon-menu-grid">
                 <div class="icon-menu-card" onclick="bukaHalaman('menu-stok', 'Stok Tersedia di Gudang', 'menu-stok-tab')">
                     <i class="fas fa-boxes-stacked text-primary"></i>
                     <span>Stok Tersedia</span>
                 </div>
-                <div class="icon-menu-card" onclick="bukaHalaman('menu-riwayat', 'Riwayat Pengeluaran Per Nama Barang', 'menu-riwayat-tab')">
+                <div class="icon-menu-card" onclick="bukaHalaman('menu-riwayat', 'Riwayat Keluar Per Nama Barang', 'menu-riwayat-tab')">
                     <i class="fas fa-table-list text-success"></i>
                     <span>Riwayat Keluar</span>
                 </div>
-                <div class="icon-menu-card" onclick="bukaHalaman('menu-rekap', 'Rekapitulasi Barang Keluar Bulanan', 'menu-rekap-tab')">
+                <div class="icon-menu-card" onclick="bukaHalaman('menu-rekap', 'Rekap Barang Keluar Bulanan', 'menu-rekap-tab')">
                     <i class="fas fa-calendar-alt text-info"></i>
                     <span>Rekap Bulanan</span>
                 </div>
@@ -173,18 +191,18 @@
             <li class="nav-item"><button class="nav-link" id="menu-input-tab" data-bs-toggle="pill" data-bs-target="#menu-input" type="button"></button></li>
         </ul>
 
-        <div class="tab-content p-3" id="pills-tabContent" style="display: none;">
-            
+        <div class="tab-content" id="pills-tabContent" style="display: none;">
+
             <!-- TAB 1: STOK TERSEDIA -->
             <div class="tab-pane fade" id="menu-stok" role="tabpanel">
-                <div class="card border-0 shadow-sm rounded-4 bg-light">
-                    <div class="card-header bg-dark text-white py-2 px-3 rounded-top-4 d-flex justify-content-between align-items-center gap-2">
-                        <span class="fs-7 fw-semibold">Daftar Stok</span>
-                        <div class="input-group" style="width: 170px;">
-                            <input type="text" id="inputPencarianStok" class="form-control form-control-sm py-1" placeholder="Ketik nama barang..." oninput="filterStok()" onkeyup="filterStok()">
+                <div class="card border rounded-3 bg-white">
+                    <div class="card-header bg-dark text-white py-1 px-2 d-flex justify-content-between align-items-center gap-2">
+                        <span class="fw-semibold" style="font-size: 0.74rem;">Daftar Stok</span>
+                        <div class="input-group" style="width: 160px;">
+                            <input type="text" id="inputPencarianStok" class="form-control form-control-sm py-0 px-2" style="height: 26px; font-size: 0.72rem;" placeholder="Cari barang..." oninput="filterStok()" onkeyup="filterStok()">
                         </div>
                     </div>
-                    <div class="card-body p-2">
+                    <div class="card-body p-1">
                         <div class="table-container table-responsive">
                             <table class="table table-bordered table-hover table-excel align-middle mb-0">
                                 <thead>
@@ -206,17 +224,17 @@
 
             <!-- TAB 2: RIWAYAT KELUAR PER NAMA BARANG -->
             <div class="tab-pane fade" id="menu-riwayat" role="tabpanel">
-                <div class="card border-0 shadow-sm rounded-4 bg-light">
-                    <div class="card-header bg-dark text-white py-2 px-3 rounded-top-4 d-flex justify-content-between align-items-center gap-2">
-                        <span class="fs-7 fw-semibold">Riwayat Keluar Per Nama Barang</span>
+                <div class="card border rounded-3 bg-white">
+                    <div class="card-header bg-dark text-white py-1 px-2 d-flex justify-content-between align-items-center gap-1">
+                        <span class="fw-semibold" style="font-size: 0.74rem;">Riwayat Keluar</span>
                         <div class="d-flex align-items-center gap-1">
-                            <input type="text" id="inputPencarianRiwayat" class="form-control form-control-sm py-1" style="width: 155px;" placeholder="Ketik nama barang..." oninput="filterRiwayat()" onkeyup="filterRiwayat()">
-                            <button class="btn btn-outline-light btn-sm py-1 px-2" onclick="exportToXLSX()" title="Export Excel">
+                            <input type="text" id="inputPencarianRiwayat" class="form-control form-control-sm py-0 px-2" style="width: 135px; height: 26px; font-size: 0.72rem;" placeholder="Cari barang..." oninput="filterRiwayat()" onkeyup="filterRiwayat()">
+                            <button class="btn btn-outline-light btn-sm py-0 px-2" style="height: 26px;" onclick="exportToXLSX()" title="Export Excel">
                                 <i class="fas fa-file-excel text-success"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="card-body p-2">
+                    <div class="card-body p-1">
                         <div class="table-container table-responsive">
                             <table class="table table-bordered table-hover table-excel align-middle mb-0">
                                 <thead>
@@ -241,12 +259,12 @@
 
             <!-- TAB 3: REKAP BULANAN -->
             <div class="tab-pane fade" id="menu-rekap" role="tabpanel">
-                <div class="card border-0 shadow-sm rounded-4 bg-light">
-                    <div class="card-header bg-dark text-white py-2 px-3 rounded-top-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                        <span class="fs-7 fw-semibold"><i class="fas fa-calendar-days me-1"></i> Rekap Barang Keluar Per Bulan</span>
+                <div class="card border rounded-3 bg-white">
+                    <div class="card-header bg-dark text-white py-1 px-2 d-flex flex-wrap justify-content-between align-items-center gap-1">
+                        <span class="fw-semibold" style="font-size: 0.74rem;"><i class="fas fa-calendar-days me-1"></i>Rekap Bulanan</span>
                         <div class="d-flex align-items-center gap-1">
-                            <select id="filterBulan" class="form-select form-select-sm py-1" style="width: 110px;" onchange="renderRekapBulanan()">
-                                <option value="all">Semua Bulan</option>
+                            <select id="filterBulan" class="form-select form-select-sm py-0 px-2" style="width: 102px; height: 26px; font-size: 0.72rem;" onchange="renderRekapBulanan()">
+                                <option value="all">Semua Bln</option>
                                 <option value="01">Januari</option>
                                 <option value="02">Februari</option>
                                 <option value="03">Maret</option>
@@ -260,16 +278,16 @@
                                 <option value="11">November</option>
                                 <option value="12">Desember</option>
                             </select>
-                            <select id="filterTahun" class="form-select form-select-sm py-1" style="width: 85px;" onchange="renderRekapBulanan()">
+                            <select id="filterTahun" class="form-select form-select-sm py-0 px-2" style="width: 78px; height: 26px; font-size: 0.72rem;" onchange="renderRekapBulanan()">
                                 <option value="all">Tahun</option>
                             </select>
-                            <button class="btn btn-outline-light btn-sm py-1 px-2" onclick="exportRekapXLSX()" title="Export Rekap ke Excel">
+                            <button class="btn btn-outline-light btn-sm py-0 px-2" style="height: 26px;" onclick="exportRekapXLSX()" title="Export Rekap ke Excel">
                                 <i class="fas fa-file-excel text-success"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="card-body p-2">
-                        <div class="mb-2 px-1">
+                    <div class="card-body p-1">
+                        <div class="p-1">
                             <input type="text" id="inputPencarianRekap" class="form-control form-control-sm py-1" placeholder="Ketik nama barang..." oninput="renderRekapBulanan()" onkeyup="renderRekapBulanan()">
                         </div>
                         <div class="table-container table-responsive">
@@ -292,8 +310,8 @@
 
             <!-- TAB 4: INPUT / KELOLA -->
             <div class="tab-pane fade" id="menu-input" role="tabpanel">
-                <div class="card border-0 shadow-sm rounded-4 bg-light mb-3">
-                    <div class="card-body p-3">
+                <div class="card border rounded-3 bg-white mb-2">
+                    <div class="card-body p-2">
                         <form id="formAdminStok" onsubmit="saveStok(event)">
                             <input type="hidden" id="stokId">
                             <div class="mb-2">
@@ -315,21 +333,21 @@
                                     <option value="sheet">Sheet</option>
                                 </select>
                             </div>
-                            <div class="d-flex justify-content-end gap-2 mt-3">
-                                <button type="button" class="btn btn-outline-secondary px-3" onclick="resetForm()"><i class="fas fa-undo me-1"></i> Reset</button>
-                                <button type="submit" class="btn btn-primary px-3" id="btnSimpanStok">
-                                    <i class="fas fa-save me-1"></i> Simpan Stok
+                            <div class="d-flex justify-content-end gap-2 mt-2">
+                                <button type="button" class="btn btn-outline-secondary" onclick="resetForm()"><i class="fas fa-undo me-1"></i>Reset</button>
+                                <button type="submit" class="btn btn-primary" id="btnSimpanStok">
+                                    <i class="fas fa-save me-1"></i>Simpan Stok
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <div class="card border-0 shadow-sm rounded-4 bg-light">
-                    <div class="card-header bg-secondary text-white py-2 px-3 rounded-top-4">
-                        <span class="fs-7 fw-semibold">Kelola / Hapus Stok</span>
+                <div class="card border rounded-3 bg-white">
+                    <div class="card-header bg-secondary text-white py-1 px-2">
+                        <span class="fw-semibold" style="font-size: 0.74rem;">Kelola / Hapus Stok</span>
                     </div>
-                    <div class="card-body p-2">
+                    <div class="card-body p-1">
                         <div class="table-container table-responsive">
                             <table class="table table-bordered table-hover table-excel align-middle mb-0">
                                 <thead>
@@ -395,14 +413,6 @@
         import { getDatabase, ref, push, update, remove, runTransaction, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                const splash = document.getElementById('splashScreen');
-                if (splash) {
-                    splash.classList.add('fade-out');
-                    setTimeout(() => splash.remove(), 600);
-                }
-            }, 1500);
-
             const now = new Date();
             const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
             const currentYear = String(now.getFullYear());
@@ -442,6 +452,19 @@
             return String(str || '').trim().replace(/\s+/g, ' ').toLowerCase();
         }
 
+        function formatTanggalID(tgl) {
+            if (!tgl) return '-';
+            const str = String(tgl).trim();
+            const matchIso = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (matchIso) {
+                const thn = matchIso[1];
+                const bln = String(matchIso[2]).padStart(2, '0');
+                const hri = String(matchIso[3]).padStart(2, '0');
+                return `${hri}/${bln}/${thn}`;
+            }
+            return str;
+        }
+
         function playNotificationAudio() {
             try {
                 const audioElement = document.getElementById('audioNotifikasi');
@@ -458,8 +481,8 @@
         window.bukaHalaman = function(tabTargetId, subtitleText, tabTriggerId) {
             document.getElementById('dashboardMenu').style.display = 'none';
             document.getElementById('pills-tabContent').style.display = 'block';
-            document.getElementById('headerBackBtn').style.visibility = 'visible';
-            document.getElementById('headerSubtitle').textContent = subtitleText;
+            document.getElementById('headerBackBtn').classList.remove('d-none');
+            document.getElementById('pageContextLabel').textContent = subtitleText;
 
             if (tabTargetId === 'menu-rekap') renderRekapBulanan();
 
@@ -470,13 +493,13 @@
         window.kembaliKeMenuUtama = function() {
             document.getElementById('pills-tabContent').style.display = 'none';
             document.getElementById('dashboardMenu').style.display = 'block';
-            document.getElementById('headerBackBtn').style.visibility = 'hidden';
-            document.getElementById('headerSubtitle').textContent = 'Pilih menu di bawah untuk mengelola gudang';
+            document.getElementById('headerBackBtn').classList.add('d-none');
+            document.getElementById('pageContextLabel').textContent = 'Menu Admin';
         };
 
         window.showAndroidAlert = function(title, message, isError = false) {
-            document.getElementById('androidModalTitle').innerHTML = isError ? 
-                '<i class="fas fa-exclamation-circle me-1 text-danger"></i>' + title : 
+            document.getElementById('androidModalTitle').innerHTML = isError ?
+                '<i class="fas fa-exclamation-circle me-1 text-danger"></i>' + title :
                 '<i class="fas fa-check-circle me-1 text-primary"></i>' + title;
             document.getElementById('androidModalMessage').textContent = message;
             bootstrap.Modal.getOrCreateInstance(document.getElementById('androidModal')).show();
@@ -660,15 +683,28 @@
 
                 let rowCounter = 0;
                 sortedGroups.forEach(group => {
+                    const totalQtyKeluar = group.rows.reduce((sum, r) => sum + (Number(r.qty) || 0), 0);
                     const stokMatch = dataStokGlobal.find(s => normalizeName(s.namaBarang) === normalizeName(group.label));
-                    const stokTerkiniText = stokMatch ? `${Number(stokMatch.jumlah).toLocaleString()} ${stokMatch.satuan || ''}`.trim() : '-';
+                    const satuanLabel = stokMatch && stokMatch.satuan ? ` ${stokMatch.satuan}` : '';
+                    const stokTerkiniText = stokMatch
+                        ? `${Number(stokMatch.jumlah).toLocaleString()}${satuanLabel}`
+                        : '-';
 
                     const headerTr = document.createElement('tr');
                     headerTr.className = 'group-header-row';
                     headerTr.innerHTML = `
                         <td colspan="7">
-                            <i class="fas fa-box me-1"></i>${group.label}
-                            <span class="float-end fw-semibold text-dark">Stok Terkini: ${stokTerkiniText}</span>
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-1">
+                                <span><i class="fas fa-box me-1"></i>${group.label}</span>
+                                <span class="d-flex flex-wrap gap-1">
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                        Total Keluar: -${totalQtyKeluar.toLocaleString()}${satuanLabel}
+                                    </span>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                        Stok Terkini: ${stokTerkiniText}
+                                    </span>
+                                </span>
+                            </div>
                         </td>
                     `;
                     tbody.appendChild(headerTr);
@@ -682,7 +718,7 @@
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
                             <td class="text-center text-muted fw-bold">${rowCounter}</td>
-                            <td>${item.tanggal}</td>
+                            <td>${formatTanggalID(item.tanggal)}</td>
                             <td class="text-center fw-bold text-secondary">${stokAwalText}</td>
                             <td class="text-center fw-bold text-danger">-${Number(item.qty).toLocaleString()}</td>
                             <td class="text-center fw-bold text-primary">${sisaText}</td>
@@ -847,7 +883,7 @@
                 const enriched = buildEnrichedRiwayat(dataRiwayatGlobal);
                 const formatted = enriched.map((item, index) => ({
                     "No": index + 1,
-                    "Tanggal": item.tanggal,
+                    "Tanggal": formatTanggalID(item.tanggal),
                     "Nama Barang": item.namaBarang,
                     "Stok Awal": item.stokAwal !== null ? Number(item.stokAwal) : '-',
                     "QTY Keluar": Number(item.qty),
