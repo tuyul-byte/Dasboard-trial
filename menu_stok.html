@@ -192,7 +192,7 @@
             </div>
             <div class="d-flex align-items-center gap-1">
                 <span id="syncStatusBadge" class="sync-status-pill">
-                    <i class="fas fa-circle-dot"></i><span>Lokal</span>
+                    <i class="fas fa-circle-dot"></i><span>Menghubungkan...</span>
                 </span>
                 <button type="button" class="btn-pill-sm" onclick="downloadHtmlDenganSubMenu()" title="Simpan salinan HTML berisi sub-menu & data terbaru">
                     <i class="fas fa-file-code"></i><span>Simpan HTML</span>
@@ -418,12 +418,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Samakan firebaseConfig ini dengan konfigurasi di halaman Admin & Staff
         const firebaseConfig = {
-            
+            apiKey: "AIzaSyA_QcHO8eB6JsJZslr9kFDLIhgZu0cXHBI",
+  authDomain: "material-incomming.firebaseapp.com",
+  databaseURL: "https://material-incomming-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "material-incomming",
+  storageBucket: "material-incomming.firebasestorage.app",
+  messagingSenderId: "323944053500",
+  appId: "1:323944053500:web:b800addbf65b915dd33579"
         };
 
         const FIREBASE_PATH = 'gudang/menu_stok';
-        const LOCAL_KEY = 'menu_stok_dinamis_v8';
+        const LOCAL_KEY = 'menu_stok_dinamis_v9';
 
         let dbRef = null;
         let isApplyingRemote = false;
@@ -445,18 +452,17 @@
 
         function initFirebaseRealtime() {
             if (!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes('YOUR_PROJECT_ID')) {
-                setSyncStatus('local', 'Lokal');
+                setSyncStatus('local', 'Lokal (Isi Config)');
                 return;
             }
+            if (typeof firebase === 'undefined' || !firebase.database) {
+                setSyncStatus('err', 'SDK Gagal');
+                return;
+            }
+
             try {
                 const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
-                dbRef = firebase.database(app)apiKey: "AIzaSyA_QcHO8eB6JsJZslr9kFDLIhgZu0cXHBI",
-  authDomain: "material-incomming.firebaseapp.com",
-  databaseURL: "https://material-incomming-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "material-incomming",
-  storageBucket: "material-incomming.firebasestorage.app",
-  messagingSenderId: "323944053500",
-  appId: "1:323944053500:web:b800addbf65b915dd33579".ref(FIREBASE_PATH);
+                dbRef = firebase.database(app).ref(FIREBASE_PATH);
                 setSyncStatus('sync', 'Menghubungkan...');
 
                 dbRef.on('value', (snapshot) => {
@@ -477,8 +483,8 @@
                         renderSubMenuStrip();
                         setTimeout(() => { isApplyingRemote = false; }, 120);
                     }
-                }, () => {
-                    setSyncStatus('err', 'Error DB');
+                }, (err) => {
+                    setSyncStatus('err', err && err.code === 'PERMISSION_DENIED' ? 'Akses Ditolak' : 'Error DB');
                 });
             } catch (e) {
                 setSyncStatus('err', 'Error Init');
