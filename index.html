@@ -1,813 +1,812 @@
-  <!DOCTYPE html>
-  <html lang="id">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      <title>Gudang Dashboard</title>
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-      <style>
-          :root {
-              --theme-primary: #5b21b6;
-              --theme-dark: #4c1d95;
-              --theme-light: #7c3aed;
-              --theme-soft-bg: #f5f3ff;
-              --theme-pill-bg: #e2d9f3;
-              --theme-pill-active: #d4c4f0;
-          }
-  
-          html, body {
-              margin: 0;
-              padding: 0;
-              background-color: #eef2f6;
-              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-              font-size: 0.78rem;
-              color: #1e293b;
-              overflow-x: hidden;
-          }
-  
-          * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  
-          .mobile-app-shell {
-              width: 100%;
-              max-width: 480px;
-              min-height: 100vh;
-              margin: 0 auto;
-              background: #f8fafc;
-              display: flex;
-              flex-direction: column;
-              padding-bottom: 76px;
-              position: relative;
-          }
-  
-          .top-hero-section {
-              background: linear-gradient(180deg, var(--theme-pill-bg) 0%, var(--theme-soft-bg) 55%, #f8fafc 100%);
-              padding: 12px 14px 14px;
-          }
-  
-          .top-bar-row {
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              gap: 8px;
-              margin-bottom: 10px;
-          }
-  
-          .brand-heading {
-              font-size: 1.08rem;
-              font-weight: 800;
-              color: var(--theme-dark);
-              letter-spacing: -0.3px;
-              margin: 0;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-          }
-  
-          .pill-action-btn {
-              border: none;
-              background: var(--theme-pill-bg);
-              color: var(--theme-dark);
-              font-size: 0.72rem;
-              font-weight: 700;
-              padding: 5px 11px;
-              border-radius: 50rem;
-              display: inline-flex;
-              align-items: center;
-              gap: 5px;
-              cursor: pointer;
-              white-space: nowrap;
-          }
-          .pill-action-btn:hover { background: var(--theme-pill-active); }
-  
-          .icon-circle-btn {
-              width: 32px;
-              height: 32px;
-              border: none;
-              background: var(--theme-pill-bg);
-              color: var(--theme-dark);
-              border-radius: 50%;
-              display: inline-flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 0.82rem;
-              cursor: pointer;
-              padding: 0;
-          }
-          .icon-circle-btn:hover { background: var(--theme-pill-active); }
-  
-          .summary-banner-card {
-              background: linear-gradient(125deg, var(--theme-dark) 0%, var(--theme-primary) 55%, var(--theme-light) 100%);
-              color: #ffffff;
-              border-radius: 16px;
-              padding: 13px 16px;
-              box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              gap: 12px;
-          }
-  
-          .summary-label { font-size: 0.72rem; opacity: 0.85; margin-bottom: 2px; }
-          .summary-main-val { font-size: 1.05rem; font-weight: 800; line-height: 1.2; }
-          .summary-sub-val { font-size: 0.7rem; opacity: 0.85; margin-top: 2px; }
-  
-          .summary-right-pill {
-              background: #ffffff;
-              color: var(--theme-dark);
-              border-radius: 50rem;
-              padding: 6px 13px;
-              font-size: 0.72rem;
-              font-weight: 700;
-              display: inline-flex;
-              align-items: center;
-              gap: 6px;
-              border: none;
-              cursor: pointer;
-              white-space: nowrap;
-          }
-  
-          .category-tabs {
-              display: flex;
-              align-items: center;
-              gap: 20px;
-              padding: 6px 16px 4px;
-              background: #ffffff;
-              border-bottom: 1px solid #f1f5f9;
-              overflow-x: auto;
-          }
-          .cat-tab-btn {
-              border: none;
-              background: transparent;
-              font-size: 0.78rem;
-              font-weight: 600;
-              color: #64748b;
-              padding: 6px 0;
-              position: relative;
-              cursor: pointer;
-              white-space: nowrap;
-          }
-          .cat-tab-btn.active {
-              color: var(--theme-dark);
-              font-weight: 700;
-          }
-          .cat-tab-btn.active::after {
-              content: "";
-              position: absolute;
-              left: 0;
-              right: 0;
-              bottom: 0;
-              height: 2.5px;
-              border-radius: 99px;
-              background: var(--theme-primary);
-          }
-  
-          .icon-shortcut-section {
-              background: #ffffff;
-              padding: 14px 12px;
-          }
-  
-          .shortcut-grid-4 {
-              display: grid;
-              grid-template-columns: repeat(4, 1fr);
-              gap: 12px 8px;
-          }
-  
-          .shortcut-item {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              text-align: center;
-              cursor: pointer;
-              padding: 6px 4px;
-              border-radius: 12px;
-              transition: background 0.15s ease, transform 0.15s ease;
-          }
-          .shortcut-item:hover {
-              background: var(--theme-soft-bg);
-              transform: translateY(-1px);
-          }
-  
-          .shortcut-icon-box {
-              position: relative;
-              width: 46px;
-              height: 46px;
-              border-radius: 14px;
-              background: var(--theme-soft-bg);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 1.15rem;
-              margin-bottom: 6px;
-          }
-  
-          .shortcut-badge {
-              position: absolute;
-              top: -6px;
-              right: -6px;
-              font-size: 0.56rem;
-              font-weight: 800;
-              line-height: 1;
-              padding: 2px 5px;
-              border-radius: 50rem;
-              letter-spacing: 0.2px;
-              box-shadow: 0 2px 5px rgba(15, 23, 42, 0.16);
-              white-space: nowrap;
-          }
-  
-          .shortcut-label {
-              font-size: 0.7rem;
-              font-weight: 600;
-              color: #1e293b;
-              line-height: 1.2;
-              display: -webkit-box;
-              -webkit-line-clamp: 2;
-              -webkit-box-orient: vertical;
-              overflow: hidden;
-          }
-  
-          .promo-banner-box {
-              margin: 12px 14px 6px;
-              background: linear-gradient(120deg, var(--theme-dark) 0%, var(--theme-primary) 65%, var(--theme-light) 100%);
-              border-radius: 14px;
-              padding: 13px 16px;
-              color: #ffffff;
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              gap: 12px;
-              cursor: pointer;
-          }
-          .promo-banner-title { font-size: 0.84rem; font-weight: 800; margin-bottom: 2px; }
-          .promo-banner-desc { font-size: 0.7rem; opacity: 0.9; margin: 0; }
-  
-          .section-heading-row {
-              padding: 10px 16px 6px;
-              font-size: 0.82rem;
-              font-weight: 800;
-              color: #0f172a;
-          }
-  
-          .reco-cards-row {
-              display: grid;
-              grid-template-columns: repeat(2, 1fr);
-              gap: 10px;
-              padding: 0 14px 14px;
-          }
-  
-          .reco-mini-card {
-              background: #ffffff;
-              border: 1px solid #e2e8f0;
-              border-radius: 12px;
-              padding: 11px 12px;
-              cursor: pointer;
-              transition: border-color 0.15s ease;
-          }
-          .reco-mini-card:hover { border-color: var(--theme-light); }
-          .reco-mini-title { font-size: 0.76rem; font-weight: 700; color: var(--theme-dark); margin-bottom: 2px; }
-          .reco-mini-sub { font-size: 0.68rem; color: #64748b; margin: 0; }
-  
-          .frame-panel { display: none; padding: 10px 14px 14px; flex: 1; }
-          .menu-iframe {
-              width: 100%;
-              height: calc(100vh - 220px);
-              min-height: 440px;
-              border: 1px solid #e2e8f0;
-              border-radius: 12px;
-              background: #ffffff;
-              display: block;
-          }
-  
-          .bottom-nav-bar {
-              position: fixed;
-              left: 0;
-              right: 0;
-              bottom: 0;
-              margin: 0 auto;
-              width: 100%;
-              max-width: 480px;
-              height: 58px;
-              background: #ffffff;
-              border-top: 1px solid #e2e8f0;
-              display: grid;
-              grid-template-columns: repeat(5, 1fr);
-              align-items: center;
-              z-index: 1030;
-              padding: 0 4px;
-              will-change: transform;
-              backface-visibility: hidden;
-              -webkit-backface-visibility: hidden;
-          }
-  
-          .bnav-btn {
-              border: none;
-              background: transparent;
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              justify-content: center;
-              gap: 2px;
-              font-size: 0.64rem;
-              font-weight: 600;
-              color: #64748b;
-              cursor: pointer;
-              padding: 4px 0;
-          }
-          .bnav-btn i { font-size: 1rem; }
-          .bnav-btn.active { color: var(--theme-dark); font-weight: 700; }
-  
-          .bnav-center-wrap {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              justify-content: center;
-              margin-top: -20px;
-              cursor: pointer;
-          }
-          .bnav-center-circle {
-              width: 46px;
-              height: 46px;
-              border-radius: 50%;
-              background: linear-gradient(135deg, var(--theme-dark), var(--theme-primary));
-              color: #ffffff;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 0.72rem;
-              font-weight: 800;
-              box-shadow: 0 6px 14px rgba(15, 23, 42, 0.25);
-              border: 3px solid #ffffff;
-          }
-          .bnav-center-label {
-              font-size: 0.64rem;
-              font-weight: 700;
-              color: var(--theme-dark);
-              margin-top: 2px;
-          }
-  
-          @media (min-width: 768px) {
-              body { font-size: 0.84rem; }
-              .mobile-app-shell {
-                  max-width: 960px;
-                  min-height: auto;
-                  margin: 20px auto;
-                  border-radius: 22px;
-                  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-                  overflow: hidden;
-                  padding-bottom: 16px;
-              }
-              .top-hero-section { padding: 16px 22px 18px; }
-              .brand-heading { font-size: 1.25rem; }
-              .summary-banner-card { padding: 16px 20px; }
-              .summary-main-val { font-size: 1.18rem; }
-              .category-tabs { padding: 8px 22px 4px; gap: 26px; }
-              .cat-tab-btn { font-size: 0.84rem; }
-              .icon-shortcut-section { padding: 18px 20px; }
-              .shortcut-grid-4 { grid-template-columns: repeat(6, 1fr); gap: 14px 12px; }
-              .shortcut-icon-box { width: 52px; height: 52px; font-size: 1.25rem; }
-              .shortcut-label { font-size: 0.76rem; }
-              .promo-banner-box { margin: 14px 20px 8px; padding: 15px 20px; }
-              .promo-banner-title { font-size: 0.92rem; }
-              .promo-banner-desc { font-size: 0.76rem; }
-              .section-heading-row { padding: 12px 22px 8px; font-size: 0.88rem; }
-              .reco-cards-row { padding: 0 20px 18px; gap: 14px; }
-              .reco-mini-card { padding: 14px 16px; }
-              .reco-mini-title { font-size: 0.82rem; }
-              .reco-mini-sub { font-size: 0.74rem; }
-              .frame-panel { padding: 14px 20px 20px; }
-              .menu-iframe { height: calc(100vh - 290px); min-height: 480px; }
-              .bottom-nav-bar { display: none; }
-          }
-  
-          .android-dialog-content {
-              border-radius: 22px;
-              border: none;
-              background: #ffffff;
-              box-shadow: 0 10px 28px rgba(15, 23, 42, 0.2);
-              padding: 6px 4px 2px;
-          }
-          .android-dialog-title { font-size: 0.9rem; font-weight: 700; color: #0f172a; }
-          .android-dialog-body { font-size: 0.78rem; color: #475569; line-height: 1.4; }
-          .android-dialog-body .form-label { font-size: 0.74rem; font-weight: 600; margin-bottom: 2px; }
-          .android-dialog-body .form-control,
-          .android-dialog-body .form-select { font-size: 0.78rem; padding: 6px 10px; border-radius: 8px; }
-          .android-btn-pill { border-radius: 50rem; font-size: 0.76rem; font-weight: 600; padding: 5px 15px; }
-      </style>
-  </head>
-  <body>
-  
-      <div class="mobile-app-shell">
-          <div class="top-hero-section">
-              <div class="top-bar-row">
-                  <div class="d-flex align-items-center gap-2 min-w-0">
-                      <button id="btnBackHome" class="icon-circle-btn d-none" onclick="kembaliKeBeranda()" title="Kembali">
-                          <i class="fas fa-arrow-left"></i>
-                      </button>
-                      <h1 id="heroTitle" class="brand-heading">GUDANG</h1>
-                  </div>
-  
-                  <div class="d-flex align-items-center gap-1">
-                      <button id="btnLockAdmin" class="pill-action-btn d-none" onclick="kunciAksesAdmin()" title="Kunci Admin">
-                          <i class="fas fa-lock"></i><span>Kunci</span>
-                      </button>
-                      <button class="pill-action-btn" onclick="bukaModalTambahMenu()" title="Tambah Menu">
-                          <i class="fas fa-plus"></i><span>Menu</span>
-                      </button>
-                  </div>
-              </div>
-  
-              <div class="summary-banner-card">
-                  <div>
-                      <div class="summary-label" id="summaryTopLabel">Sistem Operasional Gudang</div>
-                      <div class="summary-main-val" id="summaryMainText">Kelola Stok • Stok • Request • Masuk/PO</div>
-                      <div class="summary-sub-val d-none" id="summarySubText">Akses cepat modul gudang</div>
-                  </div>
-                  <button class="summary-right-pill" onclick="bukaCepatAdmin()">
-                      <i class="fas fa-shield-halved"></i>
-                      <span id="adminBadgeText">Kunci Admin</span>
-                  </button>
-              </div>
-          </div>
-  
-          <div id="homeDashboardView">
-              <div class="category-tabs">
-                  <button class="cat-tab-btn active" data-cat="all" onclick="pilihKategoriTab('all', this)">Semua</button>
-                  <button class="cat-tab-btn" data-cat="admin" onclick="pilihKategoriTab('admin', this)">Admin</button>
-                  <button class="cat-tab-btn" data-cat="staff" onclick="pilihKategoriTab('staff', this)">Staff</button>
-                  <button class="cat-tab-btn" data-cat="tambahan" onclick="pilihKategoriTab('tambahan', this)">Tambahan</button>
-              </div>
-  
-              <div class="icon-shortcut-section">
-                  <div id="shortcutGrid" class="shortcut-grid-4"></div>
-              </div>
-  
-              <div class="promo-banner-box" onclick="bukaMenuLangsung('barang_masuk.html', 'Masuk / PO')">
-                  <div>
-                      <div class="promo-banner-title">Penerimaan Barang Supplier</div>
-                      <p class="promo-banner-desc">Catat kedatangan PO, SJ, QTY & Total Material SJ</p>
-                  </div>
-                  <i class="fas fa-truck-ramp-box fa-2x opacity-75"></i>
-              </div>
-  
-              <div class="section-heading-row">Akses Cepat Modul</div>
-              <div class="reco-cards-row">
-                  <div class="reco-mini-card" onclick="bukaMenuLangsung('menu_stok.html', 'Stok')">
-                      <div class="reco-mini-title"><i class="fas fa-boxes-stacked me-1"></i>Menu Stok</div>
-                      <p class="reco-mini-sub">Jumbo Roll, Karton & Riwayat stok</p>
-                  </div>
-                  <div class="reco-mini-card" onclick="bukaMenuLangsung('request_staff.html?tab=menu-form', 'Request')">
-                      <div class="reco-mini-title"><i class="fas fa-share-from-square me-1"></i>Menu Request</div>
-                      <p class="reco-mini-sub">Ajukan permintaan barang gudang</p>
-                  </div>
-              </div>
-          </div>
-  
-          <div id="framePanel" class="frame-panel">
-              <iframe id="contentFrame" class="menu-iframe" title="Konten Menu"></iframe>
-          </div>
-  
-          <nav class="bottom-nav-bar">
-              <button id="bnavHome" class="bnav-btn active" onclick="kembaliKeBeranda()">
-                  <i class="fas fa-house"></i>
-                  <span>Home</span>
-              </button>
-  
-              <button id="bnavAdmin" class="bnav-btn" onclick="bukaCepatAdmin()">
-                  <i class="fas fa-user-shield"></i>
-                  <span>Admin</span>
-              </button>
-  
-              <div class="bnav-center-wrap" onclick="bukaMenuLangsung('request_staff.html?tab=menu-form', 'Request')">
-                  <div class="bnav-center-circle">REQ</div>
-                  <span class="bnav-center-label">Request</span>
-              </div>
-  
-              <button id="bnavMasuk" class="bnav-btn" onclick="bukaMenuLangsung('barang_masuk.html', 'Masuk / PO')">
-                  <i class="fas fa-dolly"></i>
-                  <span>Masuk</span>
-              </button>
-  
-              <button id="bnavTambah" class="bnav-btn" onclick="bukaModalTambahMenu()">
-                  <i class="fas fa-circle-plus"></i>
-                  <span>Tambah</span>
-              </button>
-          </nav>
-      </div>
-  
-      <!-- POP-UP PIN / PASSWORD ADMIN -->
-      <div class="modal fade" id="modalPinAdmin" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered modal-sm">
-              <div class="modal-content android-dialog-content">
-                  <div class="modal-header border-0 pb-1">
-                      <h6 class="modal-title android-dialog-title">PIN / Password Admin</h6>
-                  </div>
-                  <form id="formPinAdmin" onsubmit="verifikasiPinAdmin(event)">
-                      <div class="modal-body android-dialog-body pt-1 pb-2">
-                          <input type="password" id="inputPinAdmin" class="form-control" placeholder="Masukkan PIN atau password..." autocomplete="current-password" required>
-                          <div id="pinError" class="text-danger mt-1 d-none" style="font-size: 0.72rem;">
-                              PIN atau password salah.
-                          </div>
-                      </div>
-                      <div class="modal-footer border-0 pt-1 d-flex justify-content-end gap-2">
-                          <button type="button" class="btn btn-light text-secondary android-btn-pill" data-bs-dismiss="modal">Batal</button>
-                          <button type="submit" class="btn btn-primary android-btn-pill">Masuk</button>
-                      </div>
-                  </form>
-              </div>
-          </div>
-      </div>
-  
-      <!-- POP-UP TAMBAH MENU -->
-      <div class="modal fade" id="modalTambahMenu" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered modal-sm">
-              <div class="modal-content android-dialog-content">
-                  <div class="modal-header border-0 pb-1">
-                      <h6 class="modal-title android-dialog-title">Tambah Menu Baru</h6>
-                  </div>
-                  <form id="formTambahMenu" onsubmit="simpanMenuBaru(event)">
-                      <div class="modal-body android-dialog-body pt-1 pb-2">
-                          <div class="mb-2">
-                              <label class="form-label">Kategori</label>
-                              <select id="newRole" class="form-select" required>
-                                  <option value="admin">Admin</option>
-                                  <option value="staff">Staff</option>
-                                  <option value="tambahan">Tambahan</option>
-                              </select>
-                          </div>
-                          <div class="mb-2">
-                              <label class="form-label">Nama Menu</label>
-                              <input type="text" id="newJudul" class="form-control" placeholder="Contoh: Barang Masuk" required>
-                          </div>
-                          <div class="mb-2">
-                              <label class="form-label">Badge Pojok (Opsional)</label>
-                              <input type="text" id="newBadge" class="form-control" maxlength="8" placeholder="Contoh: BARU atau PO">
-                          </div>
-                          <div class="mb-1">
-                              <label class="form-label">File / URL</label>
-                              <input type="text" id="newUrl" class="form-control" placeholder="Contoh: barang_masuk.html" required>
-                          </div>
-                      </div>
-                      <div class="modal-footer border-0 pt-1 d-flex justify-content-end gap-2">
-                          <button type="button" class="btn btn-light text-secondary android-btn-pill" data-bs-dismiss="modal">Batal</button>
-                          <button type="submit" class="btn btn-primary android-btn-pill">Simpan</button>
-                      </div>
-                  </form>
-              </div>
-          </div>
-      </div>
-  
-      <!-- POP-UP INFO ANDROID MODERN -->
-      <div class="modal fade" id="modalInfo" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered modal-sm">
-              <div class="modal-content android-dialog-content">
-                  <div class="modal-header border-0 pb-1">
-                      <h6 class="modal-title android-dialog-title" id="infoTitle">Info</h6>
-                  </div>
-                  <div class="modal-body android-dialog-body pt-1 pb-2">
-                      <p id="infoMsg" class="mb-0"></p>
-                  </div>
-                  <div class="modal-footer border-0 pt-1">
-                      <button type="button" class="btn btn-primary android-btn-pill" data-bs-dismiss="modal">OK</button>
-                  </div>
-              </div>
-          </div>
-      </div>
-  
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-      <script>
-          const STORAGE_KEY = 'gudang_ovo_style_menus_v6';
-          const ADMIN_PIN = '1234';
-  
-          let adminUnlocked = false;
-          let pendingAdminMenu = null;
-          let activeCategory = 'all';
-          let currentOpenedUrl = '';
-          let isNavigating = false;
-  
-          const DEFAULT_MENUS = [
-              { id: 'ad-1', role: 'admin', judul: 'Kelola Stok', ikon: 'fa-user-shield', warna: 'text-primary', badge: 'PIN', badgeClass: 'bg-primary text-white', url: 'admin_gudang.html?tab=menu-input' },
-              { id: 'st-stok', role: 'staff', judul: 'Stok', ikon: 'fa-boxes-stacked', warna: 'text-success', badge: 'NEW', badgeClass: 'bg-success text-white', url: 'menu_stok.html' },
-              { id: 'st-1', role: 'staff', judul: 'Request', ikon: 'fa-share-from-square', warna: 'text-success', badge: 'LIVE', badgeClass: 'bg-success text-white', url: 'request_staff.html?tab=menu-form' },
-              { id: 'tb-1', role: 'tambahan', judul: 'Masuk / PO', ikon: 'fa-truck-ramp-box', warna: 'text-info', badge: 'BARU', badgeClass: 'bg-danger text-white', url: 'barang_masuk.html' }
-          ];
-  
-          function muatMenu() {
-              try {
-                  const raw = localStorage.getItem(STORAGE_KEY);
-                  if (raw) {
-                      const parsed = JSON.parse(raw);
-                      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-                  }
-              } catch (e) {}
-              return [...DEFAULT_MENUS];
-          }
-  
-          let daftarMenu = muatMenu();
-  
-          function simpanMenu() {
-              try {
-                  localStorage.setItem(STORAGE_KEY, JSON.stringify(daftarMenu));
-              } catch (e) {}
-          }
-  
-          function perbaruiTombolKunciAdmin() {
-              const btnLock = document.getElementById('btnLockAdmin');
-              const badgeText = document.getElementById('adminBadgeText');
-              if (adminUnlocked) {
-                  btnLock.classList.remove('d-none');
-                  badgeText.textContent = 'Admin Terbuka';
-              } else {
-                  btnLock.classList.add('d-none');
-                  badgeText.textContent = 'Kunci Admin';
-              }
-          }
-  
-          function kunciAksesAdmin() {
-              adminUnlocked = false;
-              pendingAdminMenu = null;
-              perbaruiTombolKunciAdmin();
-              kembaliKeBeranda();
-              tampilkanInfo('Dikunci', 'Akses Menu Admin telah dikunci kembali.');
-          }
-  
-          function tampilkanInfo(judul, pesan) {
-              document.getElementById('infoTitle').textContent = judul;
-              document.getElementById('infoMsg').textContent = pesan;
-              bootstrap.Modal.getOrCreateInstance(document.getElementById('modalInfo')).show();
-          }
-  
-          function pilihKategoriTab(cat, el) {
-              activeCategory = cat;
-              document.querySelectorAll('.cat-tab-btn').forEach(btn => btn.classList.remove('active'));
-              if (el) el.classList.add('active');
-              renderShortcutGrid();
-          }
-  
-          function renderShortcutGrid() {
-              const grid = document.getElementById('shortcutGrid');
-              grid.innerHTML = '';
-  
-              const filtered = activeCategory === 'all'
-                  ? daftarMenu
-                  : daftarMenu.filter(m => m.role === activeCategory);
-  
-              filtered.forEach(item => {
-                  const div = document.createElement('div');
-                  div.className = 'shortcut-item';
-                  div.onclick = () => klikItemMenu(item);
-  
-                  const badgeHtml = item.badge
-                      ? `<span class="shortcut-badge ${item.badgeClass || 'bg-danger text-white'}">${item.badge}</span>`
-                      : '';
-  
-                  div.innerHTML = `
-                      <div class="shortcut-icon-box">
-                          ${badgeHtml}
-                          <i class="fas ${item.ikon || 'fa-border-all'} ${item.warna || 'text-dark'}"></i>
-                      </div>
-                      <span class="shortcut-label">${item.judul}</span>
-                  `;
-                  grid.appendChild(div);
-              });
-          }
-  
-          function klikItemMenu(item) {
-              if (isNavigating) return;
-              if (item.role === 'admin' && !adminUnlocked) {
-                  pendingAdminMenu = item;
-                  document.getElementById('formPinAdmin').reset();
-                  document.getElementById('pinError').classList.add('d-none');
-                  const modalEl = document.getElementById('modalPinAdmin');
-                  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                  modalEl.addEventListener('shown.bs.modal', () => {
-                      document.getElementById('inputPinAdmin').focus();
-                  }, { once: true });
-                  modal.show();
-                  return;
-              }
-              bukaHalamanFrame(item);
-          }
-  
-          function bukaCepatAdmin() {
-              klikItemMenu({
-                  id: 'ad-1',
-                  role: 'admin',
-                  judul: 'Kelola Stok',
-                  ikon: 'fa-user-shield',
-                  warna: 'text-primary',
-                  url: 'admin_gudang.html?tab=menu-input'
-              });
-          }
-  
-          function bukaMenuLangsung(url, judul) {
-              if (isNavigating) return;
-              bukaHalamanFrame({ judul, url, role: 'staff' });
-          }
-  
-          function verifikasiPinAdmin(event) {
-              event.preventDefault();
-              const val = document.getElementById('inputPinAdmin').value;
-              if (val === ADMIN_PIN) {
-                  adminUnlocked = true;
-                  perbaruiTombolKunciAdmin();
-                  const target = pendingAdminMenu;
-                  pendingAdminMenu = null;
-                  document.getElementById('pinError').classList.add('d-none');
-                  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalPinAdmin')).hide();
-                  if (target) bukaHalamanFrame(target);
-              } else {
-                  document.getElementById('pinError').classList.remove('d-none');
-                  const inp = document.getElementById('inputPinAdmin');
-                  inp.value = '';
-                  inp.focus();
-              }
-          }
-  
-          function bukaHalamanFrame(item) {
-              isNavigating = true;
-              setTimeout(() => { isNavigating = false; }, 220);
-  
-              document.getElementById('homeDashboardView').style.display = 'none';
-              document.getElementById('framePanel').style.display = 'block';
-              document.getElementById('btnBackHome').classList.remove('d-none');
-              document.getElementById('heroTitle').textContent = item.judul;
-              document.getElementById('summaryMainText').textContent = item.judul;
-              document.getElementById('summarySubText').textContent =;
-  
-              const frame = document.getElementById('contentFrame');
-              if (currentOpenedUrl !== item.url) {
-                  currentOpenedUrl = item.url;
-                  frame.src = item.url;
-              }
-  
-              window.scrollTo({ top: 0, behavior: 'instant' });
-  
-              document.getElementById('bnavHome').classList.remove('active');
-              document.getElementById('bnavAdmin').classList.toggle('active', item.role === 'admin');
-              document.getElementById('bnavMasuk').classList.toggle('active', item.url.startsWith('barang_masuk.html'));
-          }
-  
-          function kembaliKeBeranda() {
-              adminUnlocked = false;
-              pendingAdminMenu = null;
-              currentOpenedUrl = '';
-              perbaruiTombolKunciAdmin();
-  
-              document.getElementById('framePanel').style.display = 'none';
-              document.getElementById('homeDashboardView').style.display = 'block';
-              document.getElementById('btnBackHome').classList.add('d-none');
-              document.getElementById('heroTitle').textContent = 'GUDANG';
-              document.getElementById('summaryMainText').textContent = 'Kelola Stok • Stok • Request • Masuk/PO';
-              document.getElementById('summarySubText').textContent = 'Akses cepat modul gudang';
-              document.getElementById('contentFrame').src = 'about:blank';
-  
-              window.scrollTo({ top: 0, behavior: 'instant' });
-  
-              document.getElementById('bnavHome').classList.add('active');
-              document.getElementById('bnavAdmin').classList.remove('active');
-              document.getElementById('bnavMasuk').classList.remove('active');
-          }
-  
-          function bukaModalTambahMenu() {
-              document.getElementById('formTambahMenu').reset();
-              bootstrap.Modal.getOrCreateInstance(document.getElementById('modalTambahMenu')).show();
-          }
-  
-          function simpanMenuBaru(event) {
-              event.preventDefault();
-              const role = document.getElementById('newRole').value;
-              const judul = document.getElementById('newJudul').value.trim();
-              const badge = document.getElementById('newBadge').value.trim().toUpperCase();
-              const url = document.getElementById('newUrl').value.trim();
-              if (!judul || !url) return;
-  
-              const palette = {
-                  admin: { ikon: 'fa-sliders', warna: 'text-primary', badgeClass: 'bg-primary text-white' },
-                  staff: { ikon: 'fa-clipboard-check', warna: 'text-success', badgeClass: 'bg-success text-white' },
-                  tambahan: { ikon: 'fa-puzzle-piece', warna: 'text-info', badgeClass: 'bg-danger text-white' }
-              };
-              const pick = palette[role] || palette.tambahan;
-  
-              daftarMenu.push({
-                  id: `${role}-${Date.now()}`,
-                  role,
-                  judul,
-                  ikon: pick.ikon,
-                  warna: pick.warna,
-                  badge,
-                  badgeClass: pick.badgeClass,
-                  url
-              });
-  
-              simpanMenu();
-              renderShortcutGrid();
-              bootstrap.Modal.getOrCreateInstance(document.getElementById('modalTambahMenu')).hide();
-              tampilkanInfo('Tersimpan', `Menu "${judul}" ditambahkan.`);
-          }
-  
-          perbaruiTombolKunciAdmin();
-          renderShortcutGrid();
-      </script>
-  </body>
-  </html>    
-  </html>    
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gudang Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --theme-primary: #5b21b6;
+            --theme-dark: #4c1d95;
+            --theme-light: #7c3aed;
+            --theme-soft-bg: #f5f3ff;
+            --theme-pill-bg: #e2d9f3;
+            --theme-pill-active: #d4c4f0;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: #eef2f6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.78rem;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        .mobile-app-shell {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 76px;
+            position: relative;
+        }
+
+        .top-hero-section {
+            background: linear-gradient(180deg, var(--theme-pill-bg) 0%, var(--theme-soft-bg) 55%, #f8fafc 100%);
+            padding: 12px 14px 14px;
+        }
+
+        .top-bar-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .brand-heading {
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: var(--theme-dark);
+            letter-spacing: -0.3px;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pill-action-btn {
+            border: none;
+            background: var(--theme-pill-bg);
+            color: var(--theme-dark);
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 5px 11px;
+            border-radius: 50rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .pill-action-btn:hover { background: var(--theme-pill-active); }
+
+        .icon-circle-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--theme-pill-bg);
+            color: var(--theme-dark);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            cursor: pointer;
+            padding: 0;
+        }
+        .icon-circle-btn:hover { background: var(--theme-pill-active); }
+
+        .summary-banner-card {
+            background: linear-gradient(125deg, var(--theme-dark) 0%, var(--theme-primary) 55%, var(--theme-light) 100%);
+            color: #ffffff;
+            border-radius: 16px;
+            padding: 13px 16px;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .summary-label { font-size: 0.72rem; opacity: 0.85; margin-bottom: 2px; }
+        .summary-main-val { font-size: 1.05rem; font-weight: 800; line-height: 1.2; }
+        .summary-sub-val { font-size: 0.7rem; opacity: 0.85; margin-top: 2px; }
+
+        .summary-right-pill {
+            background: #ffffff;
+            color: var(--theme-dark);
+            border-radius: 50rem;
+            padding: 6px 13px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .category-tabs {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 6px 16px 4px;
+            background: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
+            overflow-x: auto;
+        }
+        .cat-tab-btn {
+            border: none;
+            background: transparent;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #64748b;
+            padding: 6px 0;
+            position: relative;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .cat-tab-btn.active {
+            color: var(--theme-dark);
+            font-weight: 700;
+        }
+        .cat-tab-btn.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2.5px;
+            border-radius: 99px;
+            background: var(--theme-primary);
+        }
+
+        .icon-shortcut-section {
+            background: #ffffff;
+            padding: 14px 12px;
+        }
+
+        .shortcut-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px 8px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            padding: 6px 4px;
+            border-radius: 12px;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+        .shortcut-item:hover {
+            background: var(--theme-soft-bg);
+            transform: translateY(-1px);
+        }
+
+        .shortcut-icon-box {
+            position: relative;
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: var(--theme-soft-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            margin-bottom: 6px;
+        }
+
+        .shortcut-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            font-size: 0.56rem;
+            font-weight: 800;
+            line-height: 1;
+            padding: 2px 5px;
+            border-radius: 50rem;
+            letter-spacing: 0.2px;
+            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.16);
+            white-space: nowrap;
+        }
+
+        .shortcut-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .promo-banner-box {
+            margin: 12px 14px 6px;
+            background: linear-gradient(120deg, var(--theme-dark) 0%, var(--theme-primary) 65%, var(--theme-light) 100%);
+            border-radius: 14px;
+            padding: 13px 16px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .promo-banner-title { font-size: 0.84rem; font-weight: 800; margin-bottom: 2px; }
+        .promo-banner-desc { font-size: 0.7rem; opacity: 0.9; margin: 0; }
+
+        .section-heading-row {
+            padding: 10px 16px 6px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .reco-cards-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 0 14px 14px;
+        }
+
+        .reco-mini-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 11px 12px;
+            cursor: pointer;
+            transition: border-color 0.15s ease;
+        }
+        .reco-mini-card:hover { border-color: var(--theme-light); }
+        .reco-mini-title { font-size: 0.76rem; font-weight: 700; color: var(--theme-dark); margin-bottom: 2px; }
+        .reco-mini-sub { font-size: 0.68rem; color: #64748b; margin: 0; }
+
+        .frame-panel { display: none; padding: 10px 14px 14px; flex: 1; }
+        .menu-iframe {
+            width: 100%;
+            height: calc(100vh - 220px);
+            min-height: 440px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #ffffff;
+            display: block;
+        }
+
+        .bottom-nav-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 480px;
+            height: 58px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            align-items: center;
+            z-index: 1030;
+            padding: 0 4px;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .bnav-btn {
+            border: none;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            font-size: 0.64rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+        .bnav-btn i { font-size: 1rem; }
+        .bnav-btn.active { color: var(--theme-dark); font-weight: 700; }
+
+        .bnav-center-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: -20px;
+            cursor: pointer;
+        }
+        .bnav-center-circle {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--theme-dark), var(--theme-primary));
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.25);
+            border: 3px solid #ffffff;
+        }
+        .bnav-center-label {
+            font-size: 0.64rem;
+            font-weight: 700;
+            color: var(--theme-dark);
+            margin-top: 2px;
+        }
+
+        @media (min-width: 768px) {
+            body { font-size: 0.84rem; }
+            .mobile-app-shell {
+                max-width: 960px;
+                min-height: auto;
+                margin: 20px auto;
+                border-radius: 22px;
+                box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+                overflow: hidden;
+                padding-bottom: 16px;
+            }
+            .top-hero-section { padding: 16px 22px 18px; }
+            .brand-heading { font-size: 1.25rem; }
+            .summary-banner-card { padding: 16px 20px; }
+            .summary-main-val { font-size: 1.18rem; }
+            .category-tabs { padding: 8px 22px 4px; gap: 26px; }
+            .cat-tab-btn { font-size: 0.84rem; }
+            .icon-shortcut-section { padding: 18px 20px; }
+            .shortcut-grid-4 { grid-template-columns: repeat(6, 1fr); gap: 14px 12px; }
+            .shortcut-icon-box { width: 52px; height: 52px; font-size: 1.25rem; }
+            .shortcut-label { font-size: 0.76rem; }
+            .promo-banner-box { margin: 14px 20px 8px; padding: 15px 20px; }
+            .promo-banner-title { font-size: 0.92rem; }
+            .promo-banner-desc { font-size: 0.76rem; }
+            .section-heading-row { padding: 12px 22px 8px; font-size: 0.88rem; }
+            .reco-cards-row { padding: 0 20px 18px; gap: 14px; }
+            .reco-mini-card { padding: 14px 16px; }
+            .reco-mini-title { font-size: 0.82rem; }
+            .reco-mini-sub { font-size: 0.74rem; }
+            .frame-panel { padding: 14px 20px 20px; }
+            .menu-iframe { height: calc(100vh - 290px); min-height: 480px; }
+            .bottom-nav-bar { display: none; }
+        }
+
+        .android-dialog-content {
+            border-radius: 22px;
+            border: none;
+            background: #ffffff;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.2);
+            padding: 6px 4px 2px;
+        }
+        .android-dialog-title { font-size: 0.9rem; font-weight: 700; color: #0f172a; }
+        .android-dialog-body { font-size: 0.78rem; color: #475569; line-height: 1.4; }
+        .android-dialog-body .form-label { font-size: 0.74rem; font-weight: 600; margin-bottom: 2px; }
+        .android-dialog-body .form-control,
+        .android-dialog-body .form-select { font-size: 0.78rem; padding: 6px 10px; border-radius: 8px; }
+        .android-btn-pill { border-radius: 50rem; font-size: 0.76rem; font-weight: 600; padding: 5px 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-app-shell">
+        <div class="top-hero-section">
+            <div class="top-bar-row">
+                <div class="d-flex align-items-center gap-2 min-w-0">
+                    <button id="btnBackHome" class="icon-circle-btn d-none" onclick="kembaliKeBeranda()" title="Kembali">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1 id="heroTitle" class="brand-heading">GUDANG</h1>
+                </div>
+
+                <div class="d-flex align-items-center gap-1">
+                    <button id="btnLockAdmin" class="pill-action-btn d-none" onclick="kunciAksesAdmin()" title="Kunci Admin">
+                        <i class="fas fa-lock"></i><span>Kunci</span>
+                    </button>
+                    <button class="pill-action-btn" onclick="bukaModalTambahMenu()" title="Tambah Menu">
+                        <i class="fas fa-plus"></i><span>Menu</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="summary-banner-card">
+                <div>
+                    <div class="summary-label" id="summaryTopLabel">Sistem Operasional Gudang</div>
+                    <div class="summary-main-val" id="summaryMainText">Kelola Stok • Stok • Request • Masuk/PO</div>
+                    <div class="summary-sub-val d-none" id="summarySubText"></div>
+                </div>
+                <button class="summary-right-pill" onclick="bukaCepatAdmin()">
+                    <i class="fas fa-shield-halved"></i>
+                    <span id="adminBadgeText">Kunci Admin</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="homeDashboardView">
+            <div class="category-tabs">
+                <button class="cat-tab-btn active" data-cat="all" onclick="pilihKategoriTab('all', this)">Semua</button>
+                <button class="cat-tab-btn" data-cat="admin" onclick="pilihKategoriTab('admin', this)">Admin</button>
+                <button class="cat-tab-btn" data-cat="staff" onclick="pilihKategoriTab('staff', this)">Staff</button>
+                <button class="cat-tab-btn" data-cat="tambahan" onclick="pilihKategoriTab('tambahan', this)">Tambahan</button>
+            </div>
+
+            <div class="icon-shortcut-section">
+                <div id="shortcutGrid" class="shortcut-grid-4"></div>
+            </div>
+
+            <div class="promo-banner-box" onclick="bukaMenuLangsung('barang_masuk.html', 'Masuk / PO')">
+                <div>
+                    <div class="promo-banner-title">Penerimaan Barang Supplier</div>
+                    <p class="promo-banner-desc">Catat kedatangan PO, SJ, QTY & Total Material SJ</p>
+                </div>
+                <i class="fas fa-truck-ramp-box fa-2x opacity-75"></i>
+            </div>
+
+            <div class="section-heading-row">Akses Cepat Modul</div>
+            <div class="reco-cards-row">
+                <div class="reco-mini-card" onclick="bukaMenuLangsung('menu_stok.html', 'Stok')">
+                    <div class="reco-mini-title"><i class="fas fa-boxes-stacked me-1"></i>Menu Stok</div>
+                    <p class="reco-mini-sub">Jumbo Roll, Karton & Riwayat stok</p>
+                </div>
+                <div class="reco-mini-card" onclick="bukaMenuLangsung('request_staff.html?tab=menu-form', 'Request')">
+                    <div class="reco-mini-title"><i class="fas fa-share-from-square me-1"></i>Menu Request</div>
+                    <p class="reco-mini-sub">Ajukan permintaan barang gudang</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="framePanel" class="frame-panel">
+            <iframe id="contentFrame" class="menu-iframe" title="Konten Menu"></iframe>
+        </div>
+
+        <nav class="bottom-nav-bar">
+            <button id="bnavHome" class="bnav-btn active" onclick="kembaliKeBeranda()">
+                <i class="fas fa-house"></i>
+                <span>Home</span>
+            </button>
+
+            <button id="bnavAdmin" class="bnav-btn" onclick="bukaCepatAdmin()">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin</span>
+            </button>
+
+            <div class="bnav-center-wrap" onclick="bukaMenuLangsung('request_staff.html?tab=menu-form', 'Request')">
+                <div class="bnav-center-circle">REQ</div>
+                <span class="bnav-center-label">Request</span>
+            </div>
+
+            <button id="bnavMasuk" class="bnav-btn" onclick="bukaMenuLangsung('barang_masuk.html', 'Masuk / PO')">
+                <i class="fas fa-dolly"></i>
+                <span>Masuk</span>
+            </button>
+
+            <button id="bnavTambah" class="bnav-btn" onclick="bukaModalTambahMenu()">
+                <i class="fas fa-circle-plus"></i>
+                <span>Tambah</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- POP-UP PIN / PASSWORD ADMIN -->
+    <div class="modal fade" id="modalPinAdmin" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content android-dialog-content">
+                <div class="modal-header border-0 pb-1">
+                    <h6 class="modal-title android-dialog-title">PIN / Password Admin</h6>
+                </div>
+                <form id="formPinAdmin" onsubmit="verifikasiPinAdmin(event)">
+                    <div class="modal-body android-dialog-body pt-1 pb-2">
+                        <input type="password" id="inputPinAdmin" class="form-control" placeholder="Masukkan PIN atau password..." autocomplete="current-password" required>
+                        <div id="pinError" class="text-danger mt-1 d-none" style="font-size: 0.72rem;">
+                            PIN atau password salah.
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-1 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-light text-secondary android-btn-pill" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary android-btn-pill">Masuk</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- POP-UP TAMBAH MENU -->
+    <div class="modal fade" id="modalTambahMenu" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content android-dialog-content">
+                <div class="modal-header border-0 pb-1">
+                    <h6 class="modal-title android-dialog-title">Tambah Menu Baru</h6>
+                </div>
+                <form id="formTambahMenu" onsubmit="simpanMenuBaru(event)">
+                    <div class="modal-body android-dialog-body pt-1 pb-2">
+                        <div class="mb-2">
+                            <label class="form-label">Kategori</label>
+                            <select id="newRole" class="form-select" required>
+                                <option value="admin">Admin</option>
+                                <option value="staff">Staff</option>
+                                <option value="tambahan">Tambahan</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Nama Menu</label>
+                            <input type="text" id="newJudul" class="form-control" placeholder="Contoh: Barang Masuk" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Badge Pojok (Opsional)</label>
+                            <input type="text" id="newBadge" class="form-control" maxlength="8" placeholder="Contoh: BARU atau PO">
+                        </div>
+                        <div class="mb-1">
+                            <label class="form-label">File / URL</label>
+                            <input type="text" id="newUrl" class="form-control" placeholder="Contoh: barang_masuk.html" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-1 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-light text-secondary android-btn-pill" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary android-btn-pill">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- POP-UP INFO ANDROID MODERN -->
+    <div class="modal fade" id="modalInfo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content android-dialog-content">
+                <div class="modal-header border-0 pb-1">
+                    <h6 class="modal-title android-dialog-title" id="infoTitle">Info</h6>
+                </div>
+                <div class="modal-body android-dialog-body pt-1 pb-2">
+                    <p id="infoMsg" class="mb-0"></p>
+                </div>
+                <div class="modal-footer border-0 pt-1">
+                    <button type="button" class="btn btn-primary android-btn-pill" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const STORAGE_KEY = 'gudang_ovo_style_menus_v7';
+        const ADMIN_PIN = '1234';
+
+        let adminUnlocked = false;
+        let pendingAdminMenu = null;
+        let activeCategory = 'all';
+        let currentOpenedUrl = '';
+        let isNavigating = false;
+
+        const DEFAULT_MENUS = [
+            { id: 'ad-1', role: 'admin', judul: 'Kelola Stok', ikon: 'fa-user-shield', warna: 'text-primary', badge: 'PIN', badgeClass: 'bg-primary text-white', url: 'admin_gudang.html?tab=menu-input' },
+            { id: 'st-stok', role: 'staff', judul: 'Stok', ikon: 'fa-boxes-stacked', warna: 'text-success', badge: 'NEW', badgeClass: 'bg-success text-white', url: 'menu_stok.html' },
+            { id: 'st-1', role: 'staff', judul: 'Request', ikon: 'fa-share-from-square', warna: 'text-success', badge: 'LIVE', badgeClass: 'bg-success text-white', url: 'request_staff.html?tab=menu-form' },
+            { id: 'tb-1', role: 'tambahan', judul: 'Masuk / PO', ikon: 'fa-truck-ramp-box', warna: 'text-info', badge: 'BARU', badgeClass: 'bg-danger text-white', url: 'barang_masuk.html' }
+        ];
+
+        function muatMenu() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                }
+            } catch (e) {}
+            return [...DEFAULT_MENUS];
+        }
+
+        let daftarMenu = muatMenu();
+
+        function simpanMenu() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(daftarMenu));
+            } catch (e) {}
+        }
+
+        function perbaruiTombolKunciAdmin() {
+            const btnLock = document.getElementById('btnLockAdmin');
+            const badgeText = document.getElementById('adminBadgeText');
+            if (adminUnlocked) {
+                btnLock.classList.remove('d-none');
+                badgeText.textContent = 'Admin Terbuka';
+            } else {
+                btnLock.classList.add('d-none');
+                badgeText.textContent = 'Kunci Admin';
+            }
+        }
+
+        function kunciAksesAdmin() {
+            adminUnlocked = false;
+            pendingAdminMenu = null;
+            perbaruiTombolKunciAdmin();
+            kembaliKeBeranda();
+            tampilkanInfo('Dikunci', 'Akses Menu Admin telah dikunci kembali.');
+        }
+
+        function tampilkanInfo(judul, pesan) {
+            document.getElementById('infoTitle').textContent = judul;
+            document.getElementById('infoMsg').textContent = pesan;
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalInfo')).show();
+        }
+
+        function pilihKategoriTab(cat, el) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (el) el.classList.add('active');
+            renderShortcutGrid();
+        }
+
+        function renderShortcutGrid() {
+            const grid = document.getElementById('shortcutGrid');
+            grid.innerHTML = '';
+
+            const filtered = activeCategory === 'all'
+                ? daftarMenu
+                : daftarMenu.filter(m => m.role === activeCategory);
+
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'shortcut-item';
+                div.onclick = () => klikItemMenu(item);
+
+                const badgeHtml = item.badge
+                    ? `<span class="shortcut-badge ${item.badgeClass || 'bg-danger text-white'}">${item.badge}</span>`
+                    : '';
+
+                div.innerHTML = `
+                    <div class="shortcut-icon-box">
+                        ${badgeHtml}
+                        <i class="fas ${item.ikon || 'fa-border-all'} ${item.warna || 'text-dark'}"></i>
+                    </div>
+                    <span class="shortcut-label">${item.judul}</span>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function klikItemMenu(item) {
+            if (isNavigating) return;
+            if (item.role === 'admin' && !adminUnlocked) {
+                pendingAdminMenu = item;
+                document.getElementById('formPinAdmin').reset();
+                document.getElementById('pinError').classList.add('d-none');
+                const modalEl = document.getElementById('modalPinAdmin');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modalEl.addEventListener('shown.bs.modal', () => {
+                    document.getElementById('inputPinAdmin').focus();
+                }, { once: true });
+                modal.show();
+                return;
+            }
+            bukaHalamanFrame(item);
+        }
+
+        function bukaCepatAdmin() {
+            klikItemMenu({
+                id: 'ad-1',
+                role: 'admin',
+                judul: 'Kelola Stok',
+                ikon: 'fa-user-shield',
+                warna: 'text-primary',
+                url: 'admin_gudang.html?tab=menu-input'
+            });
+        }
+
+        function bukaMenuLangsung(url, judul) {
+            if (isNavigating) return;
+            bukaHalamanFrame({ judul, url, role: 'staff' });
+        }
+
+        function verifikasiPinAdmin(event) {
+            event.preventDefault();
+            const val = document.getElementById('inputPinAdmin').value;
+            if (val === ADMIN_PIN) {
+                adminUnlocked = true;
+                perbaruiTombolKunciAdmin();
+                const target = pendingAdminMenu;
+                pendingAdminMenu = null;
+                document.getElementById('pinError').classList.add('d-none');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('modalPinAdmin')).hide();
+                if (target) bukaHalamanFrame(target);
+            } else {
+                document.getElementById('pinError').classList.remove('d-none');
+                const inp = document.getElementById('inputPinAdmin');
+                inp.value = '';
+                inp.focus();
+            }
+        }
+
+        function bukaHalamanFrame(item) {
+            isNavigating = true;
+            setTimeout(() => { isNavigating = false; }, 220);
+
+            document.getElementById('homeDashboardView').style.display = 'none';
+            document.getElementById('framePanel').style.display = 'block';
+            document.getElementById('btnBackHome').classList.remove('d-none');
+            document.getElementById('heroTitle').textContent = item.judul;
+            document.getElementById('summaryMainText').textContent = item.judul;
+            document.getElementById('summarySubText').textContent = '';
+
+            const frame = document.getElementById('contentFrame');
+            if (currentOpenedUrl !== item.url) {
+                currentOpenedUrl = item.url;
+                frame.src = item.url;
+            }
+
+            window.scrollTo({ top: 0, behavior: 'instant' });
+
+            document.getElementById('bnavHome').classList.remove('active');
+            document.getElementById('bnavAdmin').classList.toggle('active', item.role === 'admin');
+            document.getElementById('bnavMasuk').classList.toggle('active', item.url.startsWith('barang_masuk.html'));
+        }
+
+        function kembaliKeBeranda() {
+            adminUnlocked = false;
+            pendingAdminMenu = null;
+            currentOpenedUrl = '';
+            perbaruiTombolKunciAdmin();
+
+            document.getElementById('framePanel').style.display = 'none';
+            document.getElementById('homeDashboardView').style.display = 'block';
+            document.getElementById('btnBackHome').classList.add('d-none');
+            document.getElementById('heroTitle').textContent = 'GUDANG';
+            document.getElementById('summaryMainText').textContent = 'Kelola Stok • Stok • Request • Masuk/PO';
+            document.getElementById('summarySubText').textContent = '';
+            document.getElementById('contentFrame').src = 'about:blank';
+
+            window.scrollTo({ top: 0, behavior: 'instant' });
+
+            document.getElementById('bnavHome').classList.add('active');
+            document.getElementById('bnavAdmin').classList.remove('active');
+            document.getElementById('bnavMasuk').classList.remove('active');
+        }
+
+        function bukaModalTambahMenu() {
+            document.getElementById('formTambahMenu').reset();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalTambahMenu')).show();
+        }
+
+        function simpanMenuBaru(event) {
+            event.preventDefault();
+            const role = document.getElementById('newRole').value;
+            const judul = document.getElementById('newJudul').value.trim();
+            const badge = document.getElementById('newBadge').value.trim().toUpperCase();
+            const url = document.getElementById('newUrl').value.trim();
+            if (!judul || !url) return;
+
+            const palette = {
+                admin: { ikon: 'fa-sliders', warna: 'text-primary', badgeClass: 'bg-primary text-white' },
+                staff: { ikon: 'fa-clipboard-check', warna: 'text-success', badgeClass: 'bg-success text-white' },
+                tambahan: { ikon: 'fa-puzzle-piece', warna: 'text-info', badgeClass: 'bg-danger text-white' }
+            };
+            const pick = palette[role] || palette.tambahan;
+
+            daftarMenu.push({
+                id: `${role}-${Date.now()}`,
+                role,
+                judul,
+                ikon: pick.ikon,
+                warna: pick.warna,
+                badge,
+                badgeClass: pick.badgeClass,
+                url
+            });
+
+            simpanMenu();
+            renderShortcutGrid();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalTambahMenu')).hide();
+            tampilkanInfo('Tersimpan', `Menu "${judul}" ditambahkan.`);
+        }
+
+        perbaruiTombolKunciAdmin();
+        renderShortcutGrid();
+    </script>
+</body>
+</html>
