@@ -419,7 +419,7 @@
             <div class="summary-banner-card">
                 <div>
                     <div class="summary-label" id="summaryTopLabel">Sistem Operasional Gudang</div>
-                    <div class="summary-main-val" id="summaryMainText">Kelola Stok • Request • Masuk/PO</div>
+                    <div class="summary-main-val" id="summaryMainText">Kelola Stok • Stok • Request • Masuk/PO</div>
                     <div class="summary-sub-val" id="summarySubText">Akses cepat modul gudang</div>
                 </div>
                 <button class="summary-right-pill" onclick="bukaCepatAdmin()">
@@ -451,9 +451,9 @@
 
             <div class="section-heading-row">Akses Cepat Modul</div>
             <div class="reco-cards-row">
-                <div class="reco-mini-card" onclick="bukaCepatAdmin()">
-                    <div class="reco-mini-title"><i class="fas fa-user-shield me-1"></i>Kelola Stok Admin</div>
-                    <p class="reco-mini-sub">Kelola stok & data admin gudang</p>
+                <div class="reco-mini-card" onclick="bukaMenuLangsung('menu_stok.html', 'Stok')">
+                    <div class="reco-mini-title"><i class="fas fa-boxes-stacked me-1"></i>Menu Stok</div>
+                    <p class="reco-mini-sub">Jumbo Roll, Karton & Riwayat stok</p>
                 </div>
                 <div class="reco-mini-card" onclick="bukaMenuLangsung('request_staff.html?tab=menu-form', 'Request')">
                     <div class="reco-mini-title"><i class="fas fa-share-from-square me-1"></i>Menu Request</div>
@@ -575,7 +575,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const STORAGE_KEY = 'gudang_ovo_style_menus_v5';
+        const STORAGE_KEY = 'gudang_ovo_style_menus_v6';
         const ADMIN_PIN = '1234';
 
         let adminUnlocked = false;
@@ -584,9 +584,9 @@
         let currentOpenedUrl = '';
         let isNavigating = false;
 
-        // Sementara hanya menampilkan 3 menu utama: Kelola Stok (Admin), Request, dan Masuk / PO
         const DEFAULT_MENUS = [
             { id: 'ad-1', role: 'admin', judul: 'Kelola Stok', ikon: 'fa-user-shield', warna: 'text-primary', badge: 'PIN', badgeClass: 'bg-primary text-white', url: 'admin_gudang.html?tab=menu-input' },
+            { id: 'st-stok', role: 'staff', judul: 'Stok', ikon: 'fa-boxes-stacked', warna: 'text-success', badge: 'NEW', badgeClass: 'bg-success text-white', url: 'menu_stok.html' },
             { id: 'st-1', role: 'staff', judul: 'Request', ikon: 'fa-share-from-square', warna: 'text-success', badge: 'LIVE', badgeClass: 'bg-success text-white', url: 'request_staff.html?tab=menu-form' },
             { id: 'tb-1', role: 'tambahan', judul: 'Masuk / PO', ikon: 'fa-truck-ramp-box', warna: 'text-info', badge: 'BARU', badgeClass: 'bg-danger text-white', url: 'barang_masuk.html' }
         ];
@@ -757,7 +757,7 @@
             document.getElementById('homeDashboardView').style.display = 'block';
             document.getElementById('btnBackHome').classList.add('d-none');
             document.getElementById('heroTitle').textContent = 'GUDANG';
-            document.getElementById('summaryMainText').textContent = 'Kelola Stok • Request • Masuk/PO';
+            document.getElementById('summaryMainText').textContent = 'Kelola Stok • Stok • Request • Masuk/PO';
             document.getElementById('summarySubText').textContent = 'Akses cepat modul gudang';
             document.getElementById('contentFrame').src = 'about:blank';
 
