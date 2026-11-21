@@ -222,21 +222,25 @@
                             <label class="form-label">Tanggal Masuk <span class="text-danger">*</span></label>
                             <input type="date" id="tglMasuk" class="form-control" required>
                         </div>
-                        <div class="col-6 col-sm-4">
+                        <div class="col-6 col-sm-3">
                             <label class="form-label">Nama / Kode Item <span class="text-danger">*</span></label>
                             <input type="text" id="masukNama" class="form-control" list="datalistItemAktif" placeholder="Ketik / pilih item..." required>
                         </div>
                         <div class="col-6 col-sm-2">
-                            <label class="form-label">QTY Masuk <span class="text-danger">*</span></label>
+                            <label class="form-label">Asal Barang <span class="text-danger">*</span></label>
+                            <input type="text" id="masukAsal" class="form-control" list="datalistAsalBarang" placeholder="Supplier / Asal" autocomplete="off" required>
+                        </div>
+                        <div class="col-4 col-sm-1">
+                            <label class="form-label">QTY <span class="text-danger">*</span></label>
                             <input type="number" id="masukJumlah" class="form-control" min="1" placeholder="0" required>
                         </div>
-                        <div class="col-6 col-sm-2">
+                        <div class="col-4 col-sm-2">
                             <label class="form-label">Satuan</label>
                             <input type="text" id="masukSatuan" class="form-control" placeholder="Roll/Pcs">
                         </div>
-                        <div class="col-12 col-sm-2 d-grid">
+                        <div class="col-4 col-sm-2 d-grid">
                             <button type="submit" class="btn btn-success fw-bold">
-                                <i class="fas fa-plus me-1"></i>Tambah Stok
+                                <i class="fas fa-plus me-1"></i>Tambah
                             </button>
                         </div>
                     </div>
@@ -273,6 +277,7 @@
             </div>
 
             <datalist id="datalistItemAktif"></datalist>
+            <datalist id="datalistAsalBarang"></datalist>
 
             <!-- TABEL STOK TERKINI SUB-MENU AKTIF -->
             <div class="card-panel">
@@ -319,8 +324,8 @@
                         </select>
                     </div>
                     <div class="col-12 col-sm-4">
-                        <label class="form-label">Cari Item / Peminta</label>
-                        <input type="text" id="cariRiwayat" class="form-control" placeholder="Ketik nama item atau dept..." oninput="renderRiwayatSubMenu()">
+                        <label class="form-label">Cari Item / Asal / Peminta</label>
+                        <input type="text" id="cariRiwayat" class="form-control" placeholder="Ketik item, asal, atau dept..." oninput="renderRiwayatSubMenu()">
                     </div>
                     <div class="col-12 col-sm-2 text-sm-end">
                         <span class="fw-bold text-secondary d-block" style="font-size: 0.7rem;" id="totalRiwayatInfo">0 transaksi</span>
@@ -331,18 +336,19 @@
                     <table class="table table-bordered table-hover table-stok mb-0">
                         <thead>
                             <tr>
-                                <th class="text-center" width="6%">No</th>
-                                <th width="14%">Tgl Masuk</th>
-                                <th width="14%">Tgl Keluar</th>
-                                <th width="12%">Jenis</th>
+                                <th class="text-center" width="5%">No</th>
+                                <th width="12%">Tgl Masuk</th>
+                                <th width="12%">Tgl Keluar</th>
+                                <th width="10%">Jenis</th>
                                 <th>Nama Item</th>
-                                <th class="text-center" width="11%">QTY</th>
-                                <th class="text-center" width="11%">Sisa</th>
-                                <th width="16%">Peminta / Ket</th>
+                                <th width="14%">Asal Barang</th>
+                                <th class="text-center" width="10%">QTY</th>
+                                <th class="text-center" width="10%">Sisa</th>
+                                <th width="14%">Peminta / Ket</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyRiwayatSubMenu">
-                            <tr><td colspan="8" class="text-center text-muted py-3">Belum ada riwayat transaksi.</td></tr>
+                            <tr><td colspan="9" class="text-center text-muted py-3">Belum ada riwayat transaksi.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -412,19 +418,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Samakan firebaseConfig ini dengan konfigurasi di halaman Admin & Staff
         const firebaseConfig = {
-            apiKey: "AIzaSyA_QcHO8eB6JsJZslr9kFDLIhgZu0cXHBI",
-  authDomain: "material-incomming.firebaseapp.com",
-  databaseURL: "https://material-incomming-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "material-incomming",
-  storageBucket: "material-incomming.firebasestorage.app",
-  messagingSenderId: "323944053500",
-  appId: "1:323944053500:web:b800addbf65b915dd33579"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         const FIREBASE_PATH = 'gudang/menu_stok';
-        const LOCAL_KEY = 'menu_stok_dinamis_v6';
+        const LOCAL_KEY = 'menu_stok_dinamis_v8';
 
         let dbRef = null;
         let isApplyingRemote = false;
@@ -615,6 +620,27 @@
             dl.innerHTML = list.map(i => `<option value="${i.nama}">Stok: ${Number(i.jumlah || 0)}</option>`).join('');
         }
 
+        function refreshDatalistAsalBarang() {
+            const dl = document.getElementById('datalistAsalBarang');
+            if (!dl) return;
+
+            const seen = new Map();
+            Object.values(stateStok.history || {}).forEach(rows => {
+                (rows || []).forEach(r => {
+                    if (r && r.jenis === 'MASUK' && r.asalBarang) {
+                        const clean = String(r.asalBarang).trim();
+                        if (clean) {
+                            const key = clean.toLowerCase();
+                            if (!seen.has(key)) seen.set(key, clean);
+                        }
+                    }
+                });
+            });
+
+            const sorted = Array.from(seen.values()).sort((a, b) => a.localeCompare(b, 'id'));
+            dl.innerHTML = sorted.map(asal => `<option value="${asal}"></option>`).join('');
+        }
+
         function renderSubMenuStrip() {
             const strip = document.getElementById('subMenuStrip');
             strip.innerHTML = '';
@@ -644,6 +670,8 @@
                 bootstrap.Modal.getOrCreateInstance(document.getElementById('modalTambahSubMenu')).show();
             };
             strip.appendChild(addBtn);
+
+            refreshDatalistAsalBarang();
 
             const isHistoryView = activeSubId === 'RIWAYAT';
             document.getElementById('viewStokSubMenu').classList.toggle('d-none', isHistoryView);
@@ -694,10 +722,11 @@
             event.preventDefault();
             const tglMasuk = document.getElementById('tglMasuk').value || hariIniIso();
             const nama = document.getElementById('masukNama').value.trim();
+            const asalBarang = document.getElementById('masukAsal').value.trim();
             const qty = Number(document.getElementById('masukJumlah').value);
             const current = getActiveSubMenu();
             const satuan = document.getElementById('masukSatuan').value.trim() || current.satuan || '-';
-            if (!nama || !Number.isFinite(qty) || qty <= 0) return;
+            if (!nama || !asalBarang || !Number.isFinite(qty) || qty <= 0) return;
 
             if (!stateStok.items[current.id]) stateStok.items[current.id] = [];
             if (!stateStok.history[current.id]) stateStok.history[current.id] = [];
@@ -730,6 +759,7 @@
                 tanggalMasuk: tglMasuk,
                 tanggalKeluar: '',
                 nama: target.nama,
+                asalBarang: asalBarang,
                 qty: qty,
                 sisaStok: stokSesudah,
                 keterangan: 'Barang Datang'
@@ -737,8 +767,10 @@
 
             tulisKeBlokHtmlDanStorage();
             document.getElementById('masukNama').value = '';
+            document.getElementById('masukAsal').value = '';
             document.getElementById('masukJumlah').value = '';
             refreshDatalistItem();
+            refreshDatalistAsalBarang();
             renderTabelStok();
         }
 
@@ -777,6 +809,7 @@
                 tanggalMasuk: '',
                 tanggalKeluar: tglKeluar,
                 nama: target.nama,
+                asalBarang: '',
                 qty: qty,
                 sisaStok: sisaBaru,
                 keterangan: peminta
@@ -815,6 +848,7 @@
                     tanggalMasuk: hariIniIso(),
                     tanggalKeluar: '',
                     nama: target.nama,
+                    asalBarang: 'Gudang / Supplier',
                     qty: delta,
                     sisaStok: stokBaru,
                     keterangan: 'Penambahan Cepat'
@@ -828,6 +862,7 @@
                     tanggalMasuk: '',
                     tanggalKeluar: hariIniIso(),
                     nama: target.nama,
+                    asalBarang: '',
                     qty: Math.abs(delta),
                     sisaStok: stokBaru,
                     keterangan: 'Pengeluaran Cepat'
@@ -836,6 +871,7 @@
 
             tulisKeBlokHtmlDanStorage();
             refreshDatalistItem();
+            refreshDatalistAsalBarang();
             renderTabelStok();
         }
 
@@ -906,7 +942,7 @@
                 if (filterSub !== 'ALL' && trx.subId !== filterSub) return false;
                 if (filterJenis !== 'ALL' && trx.jenis !== filterJenis) return false;
                 if (keyword) {
-                    const hay = `${trx.nama || ''} ${trx.keterangan || ''}`.toLowerCase();
+                    const hay = `${trx.nama || ''} ${trx.asalBarang || ''} ${trx.keterangan || ''}`.toLowerCase();
                     if (!hay.includes(keyword)) return false;
                 }
                 return true;
@@ -917,7 +953,7 @@
             tbody.innerHTML = '';
 
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">Belum ada riwayat masuk/keluar sesuai filter.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-3">Belum ada riwayat masuk/keluar sesuai filter.</td></tr>`;
                 return;
             }
 
@@ -934,6 +970,7 @@
                         </span>
                     </td>
                     <td><strong>${trx.nama}</strong></td>
+                    <td>${isMasuk ? (trx.asalBarang || '-') : '-'}</td>
                     <td class="text-center fw-bold ${isMasuk ? 'text-success' : 'text-danger'}">
                         ${isMasuk ? '+' : '-'}${Number(trx.qty || 0).toLocaleString()}
                     </td>
