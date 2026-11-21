@@ -419,8 +419,8 @@
             <div class="summary-banner-card">
                 <div>
                     <div class="summary-label" id="summaryTopLabel">Sistem Operasional Gudang</div>
-                    <div class="summary-main-val" id="summaryMainText">Admin • Staff • Tambahan</div>
-                    <div class="summary-sub-val" id="summarySubText">Akses cepat modul & laporan</div>
+                    <div class="summary-main-val" id="summaryMainText">Kelola Stok • Request • Masuk/PO</div>
+                    <div class="summary-sub-val" id="summarySubText">Akses cepat modul gudang</div>
                 </div>
                 <button class="summary-right-pill" onclick="bukaCepatAdmin()">
                     <i class="fas fa-shield-halved"></i>
@@ -441,7 +441,7 @@
                 <div id="shortcutGrid" class="shortcut-grid-4"></div>
             </div>
 
-            <div class="promo-banner-box" onclick="bukaMenuLangsung('barang_masuk.html', 'Barang Masuk / PO')">
+            <div class="promo-banner-box" onclick="bukaMenuLangsung('barang_masuk.html', 'Masuk / PO')">
                 <div>
                     <div class="promo-banner-title">Penerimaan Barang Supplier</div>
                     <p class="promo-banner-desc">Catat kedatangan PO, SJ, QTY & Total Material SJ</p>
@@ -452,12 +452,12 @@
             <div class="section-heading-row">Akses Cepat Modul</div>
             <div class="reco-cards-row">
                 <div class="reco-mini-card" onclick="bukaCepatAdmin()">
-                    <div class="reco-mini-title"><i class="fas fa-user-shield me-1"></i>Panel Admin</div>
-                    <p class="reco-mini-sub">Kelola stok & rekap bulanan</p>
+                    <div class="reco-mini-title"><i class="fas fa-user-shield me-1"></i>Kelola Stok Admin</div>
+                    <p class="reco-mini-sub">Kelola stok & data admin gudang</p>
                 </div>
-                <div class="reco-mini-card" onclick="bukaMenuLangsung('request_staff.html?tab=menu-form', 'Request Barang Staff')">
-                    <div class="reco-mini-title"><i class="fas fa-share-from-square me-1"></i>Form Staff</div>
-                    <p class="reco-mini-sub">Cek stok & ajukan request barang</p>
+                <div class="reco-mini-card" onclick="bukaMenuLangsung('request_staff.html?tab=menu-form', 'Request')">
+                    <div class="reco-mini-title"><i class="fas fa-share-from-square me-1"></i>Menu Request</div>
+                    <p class="reco-mini-sub">Ajukan permintaan barang gudang</p>
                 </div>
             </div>
         </div>
@@ -477,12 +477,12 @@
                 <span>Admin</span>
             </button>
 
-            <div class="bnav-center-wrap" onclick="bukaMenuLangsung('request_staff.html?tab=menu-form', 'Request Barang Staff')">
+            <div class="bnav-center-wrap" onclick="bukaMenuLangsung('request_staff.html?tab=menu-form', 'Request')">
                 <div class="bnav-center-circle">REQ</div>
                 <span class="bnav-center-label">Request</span>
             </div>
 
-            <button id="bnavMasuk" class="bnav-btn" onclick="bukaMenuLangsung('barang_masuk.html', 'Barang Masuk / PO')">
+            <button id="bnavMasuk" class="bnav-btn" onclick="bukaMenuLangsung('barang_masuk.html', 'Masuk / PO')">
                 <i class="fas fa-dolly"></i>
                 <span>Masuk</span>
             </button>
@@ -575,7 +575,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const STORAGE_KEY = 'gudang_ovo_style_menus_v4';
+        const STORAGE_KEY = 'gudang_ovo_style_menus_v5';
         const ADMIN_PIN = '1234';
 
         let adminUnlocked = false;
@@ -584,16 +584,11 @@
         let currentOpenedUrl = '';
         let isNavigating = false;
 
-        // Hanya menu utama di dashboard; sub-menu Riwayat tetap diakses dari dalam halaman/sub-menu
+        // Sementara hanya menampilkan 3 menu utama: Kelola Stok (Admin), Request, dan Masuk / PO
         const DEFAULT_MENUS = [
             { id: 'ad-1', role: 'admin', judul: 'Kelola Stok', ikon: 'fa-user-shield', warna: 'text-primary', badge: 'PIN', badgeClass: 'bg-primary text-white', url: 'admin_gudang.html?tab=menu-input' },
-            { id: 'ad-2', role: 'admin', judul: 'Rekap Bln', ikon: 'fa-calendar-days', warna: 'text-primary', badge: '', badgeClass: '', url: 'admin_gudang.html?tab=menu-rekap' },
-            { id: 'ad-3', role: 'admin', judul: 'Input Stok', ikon: 'fa-square-plus', warna: 'text-primary', badge: '', badgeClass: '', url: 'admin_gudang.html?tab=menu-input' },
             { id: 'st-1', role: 'staff', judul: 'Request', ikon: 'fa-share-from-square', warna: 'text-success', badge: 'LIVE', badgeClass: 'bg-success text-white', url: 'request_staff.html?tab=menu-form' },
-
-            { id: 'st-2', role: 'staff', judul: 'Cek Stok', ikon: 'fa-boxes-stacked', warna: 'text-success', badge: '', badgeClass: '', url: 'request_staff.html?tab=menu-stok' },
-            { id: 'tb-1', role: 'tambahan', judul: 'Masuk / PO', ikon: 'fa-truck-ramp-box', warna: 'text-info', badge: 'BARU', badgeClass: 'bg-danger text-white', url: 'barang_masuk.html' },
-            { id: 'tb-2', role: 'tambahan', judul: 'Opname', ikon: 'fa-clipboard-check', warna: 'text-warning', badge: '', badgeClass: '', url: 'stock_opname.html' }
+            { id: 'tb-1', role: 'tambahan', judul: 'Masuk / PO', ikon: 'fa-truck-ramp-box', warna: 'text-info', badge: 'BARU', badgeClass: 'bg-danger text-white', url: 'barang_masuk.html' }
         ];
 
         function muatMenu() {
@@ -695,12 +690,12 @@
 
         function bukaCepatAdmin() {
             klikItemMenu({
-                id: 'ad-quick',
+                id: 'ad-1',
                 role: 'admin',
-                judul: 'Kelola Stok & Rekap',
+                judul: 'Kelola Stok',
                 ikon: 'fa-user-shield',
                 warna: 'text-primary',
-                url: 'admin_gudang.html'
+                url: 'admin_gudang.html?tab=menu-input'
             });
         }
 
@@ -762,8 +757,8 @@
             document.getElementById('homeDashboardView').style.display = 'block';
             document.getElementById('btnBackHome').classList.add('d-none');
             document.getElementById('heroTitle').textContent = 'GUDANG';
-            document.getElementById('summaryMainText').textContent = 'Admin • Staff • Tambahan';
-            document.getElementById('summarySubText').textContent = 'Akses cepat modul & laporan';
+            document.getElementById('summaryMainText').textContent = 'Kelola Stok • Request • Masuk/PO';
+            document.getElementById('summarySubText').textContent = 'Akses cepat modul gudang';
             document.getElementById('contentFrame').src = 'about:blank';
 
             window.scrollTo({ top: 0, behavior: 'instant' });
