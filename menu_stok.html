@@ -53,6 +53,19 @@
             gap: 6px;
         }
 
+        .sync-status-pill {
+            font-size: 0.66rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 50rem;
+            background: #f1f5f9;
+            color: #475569;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
         .btn-pill-sm {
             border: 1px solid #cbd5e1;
             background: #ffffff;
@@ -178,6 +191,9 @@
                 <span id="activeSubTitle">Stok - Jumbo Roll</span>
             </div>
             <div class="d-flex align-items-center gap-1">
+                <span id="syncStatusBadge" class="sync-status-pill">
+                    <i class="fas fa-circle-dot"></i><span>Lokal</span>
+                </span>
                 <button type="button" class="btn-pill-sm" onclick="downloadHtmlDenganSubMenu()" title="Simpan salinan HTML berisi sub-menu & data terbaru">
                     <i class="fas fa-file-code"></i><span>Simpan HTML</span>
                 </button>
@@ -390,9 +406,79 @@
     }
     </script>
 
+    <!-- Firebase Realtime Database SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const LOCAL_KEY = 'menu_stok_dinamis_v4';
+        // Samakan firebaseConfig ini dengan konfigurasi di halaman Admin & Staff
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_QcHO8eB6JsJZslr9kFDLIhgZu0cXHBI",
+  authDomain: "material-incomming.firebaseapp.com",
+  databaseURL: "https://material-incomming-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "material-incomming",
+  storageBucket: "material-incomming.firebasestorage.app",
+  messagingSenderId: "323944053500",
+  appId: "1:323944053500:web:b800addbf65b915dd33579"
+        };
+
+        const FIREBASE_PATH = 'gudang/menu_stok';
+        const LOCAL_KEY = 'menu_stok_dinamis_v6';
+
+        let dbRef = null;
+        let isApplyingRemote = false;
+
+        function setSyncStatus(mode, label) {
+            const el = document.getElementById('syncStatusBadge');
+            if (!el) return;
+            const colorMap = {
+                ok: { bg: '#dcfce7', color: '#166534' },
+                sync: { bg: '#e0e7ff', color: '#3730a3' },
+                err: { bg: '#fee2e2', color: '#991b1b' },
+                local: { bg: '#f1f5f9', color: '#475569' }
+            };
+            const st = colorMap[mode] || colorMap.local;
+            el.style.background = st.bg;
+            el.style.color = st.color;
+            el.innerHTML = `<i class="fas fa-circle-dot"></i><span>${label}</span>`;
+        }
+
+        function initFirebaseRealtime() {
+            if (!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes('YOUR_PROJECT_ID')) {
+                setSyncStatus('local', 'Lokal');
+                return;
+            }
+            try {
+                const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+                dbRef = firebase.database(app).ref(FIREBASE_PATH);
+                setSyncStatus('sync', 'Menghubungkan...');
+
+                dbRef.on('value', (snapshot) => {
+                    const remoteData = snapshot.val();
+                    setSyncStatus('ok', 'Live');
+                    if (!remoteData || typeof remoteData !== 'object') return;
+
+                    const normalized = normalisasiState(remoteData);
+                    if (normalized.updatedAt >= Number(stateStok.updatedAt || 0)) {
+                        isApplyingRemote = true;
+                        stateStok = normalized;
+                        if (activeSubId !== 'RIWAYAT' && !stateStok.submenus.some(s => s.id === activeSubId)) {
+                            activeSubId = stateStok.submenus[0].id;
+                        }
+                        try {
+                            localStorage.setItem(LOCAL_KEY, JSON.stringify(stateStok));
+                        } catch (e) {}
+                        renderSubMenuStrip();
+                        setTimeout(() => { isApplyingRemote = false; }, 120);
+                    }
+                }, () => {
+                    setSyncStatus('err', 'Error DB');
+                });
+            } catch (e) {
+                setSyncStatus('err', 'Error Init');
+            }
+        }
 
         function hariIniIso() {
             const d = new Date();
@@ -413,9 +499,39 @@
             bootstrap.Modal.getOrCreateInstance(document.getElementById('modalPesanStok')).show();
         }
 
+        function normalisasiState(raw) {
+            const parsed = raw && typeof raw === 'object' ? raw : {};
+            const submenus = Array.isArray(parsed.submenus) && parsed.submenus.length > 0
+                ? parsed.submenus
+                : [
+                    { id: 'jumbo-roll', nama: 'Jumbo Roll', satuan: 'Roll' },
+                    { id: 'karton', nama: 'Karton', satuan: 'Pcs' }
+                ];
+
+            const items = {};
+            const history = {};
+            if (parsed.items && typeof parsed.items === 'object') {
+                Object.entries(parsed.items).forEach(([k, v]) => {
+                    items[k] = Array.isArray(v) ? v : Object.values(v || {});
+                });
+            }
+            if (parsed.history && typeof parsed.history === 'object') {
+                Object.entries(parsed.history).forEach(([k, v]) => {
+                    history[k] = Array.isArray(v) ? v : Object.values(v || {});
+                });
+            }
+
+            return {
+                submenus,
+                items,
+                history,
+                updatedAt: Number(parsed.updatedAt || 0)
+            };
+        }
+
         function bacaKonfigurasiAwal() {
             const scriptEl = document.getElementById('subMenuConfig');
-            let embedded = { submenus: [], items: {}, history: {} };
+            let embedded = null;
             try {
                 embedded = JSON.parse(scriptEl.textContent || '{}');
             } catch (e) {}
@@ -423,27 +539,11 @@
             try {
                 const saved = localStorage.getItem(LOCAL_KEY);
                 if (saved) {
-                    const parsed = JSON.parse(saved);
-                    if (Array.isArray(parsed.submenus) && parsed.submenus.length > 0) {
-                        return {
-                            submenus: parsed.submenus,
-                            items: parsed.items || {},
-                            history: parsed.history || {}
-                        };
-                    }
+                    return normalisasiState(JSON.parse(saved));
                 }
             } catch (e) {}
 
-            return {
-                submenus: Array.isArray(embedded.submenus) && embedded.submenus.length > 0
-                    ? embedded.submenus
-                    : [
-                        { id: 'jumbo-roll', nama: 'Jumbo Roll', satuan: 'Roll' },
-                        { id: 'karton', nama: 'Karton', satuan: 'Pcs' }
-                    ],
-                items: embedded.items || {},
-                history: embedded.history || {}
-            };
+            return normalisasiState(embedded);
         }
 
         let stateStok = bacaKonfigurasiAwal();
@@ -453,13 +553,21 @@
         document.getElementById('tglMasuk').value = hariIniIso();
         document.getElementById('tglKeluar').value = hariIniIso();
 
-        function tulisKeBlokHtmlDanStorage() {
+        function tulisKeBlokHtmlDanStorage(skipFirebasePush = false) {
+            stateStok.updatedAt = Date.now();
             const jsonText = JSON.stringify(stateStok, null, 2);
             const scriptEl = document.getElementById('subMenuConfig');
             if (scriptEl) scriptEl.textContent = '\n' + jsonText + '\n    ';
             try {
                 localStorage.setItem(LOCAL_KEY, JSON.stringify(stateStok));
             } catch (e) {}
+
+            if (!skipFirebasePush && !isApplyingRemote && dbRef) {
+                setSyncStatus('sync', 'Menyimpan...');
+                dbRef.set(stateStok)
+                    .then(() => setSyncStatus('ok', 'Live'))
+                    .catch(() => setSyncStatus('err', 'Gagal Kirim'));
+            }
         }
 
         function slugifyId(text) {
@@ -837,7 +945,7 @@
         }
 
         function downloadHtmlDenganSubMenu() {
-            tulisKeBlokHtmlDanStorage();
+            tulisKeBlokHtmlDanStorage(true);
             const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
             const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -851,6 +959,7 @@
         }
 
         renderSubMenuStrip();
+        initFirebaseRealtime();
     </script>
 </body>
 </html>
