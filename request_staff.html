@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Request Barang - Staff</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: #f8fafc;
+            font-size: 0.78rem;
+            color: #0f172a;
+        }
+        .embed-shell {
+            padding: 8px;
+        }
+        .mini-status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 6px 10px;
+            margin-bottom: 8px;
+            font-size: 0.72rem;
+        }
+        .connection-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            color: #146c43;
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-dot.connecting { background-color: #ffc107; }
+        .status-dot.connected { background-color: #198754; box-shadow: 0 0 5px #198754; }
+        .status-dot.error { background-color: #dc3545; }
+
+        .btn-back-menu {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 50rem;
+            background: #e9f7ef;
+            color: #146c43;
+            border: 1px solid #a3cfbb;
+            cursor: pointer;
+        }
+        .btn-back-menu:active { background: #d1e7dd; }
+
+        .form-label { font-size: 0.74rem; font-weight: 600; margin-bottom: 2px; color: #334155; }
+        .form-control, .form-select { font-size: 0.76rem; padding: 5px 8px; border-radius: 8px; }
+        .btn { font-size: 0.76rem; padding: 5px 12px; border-radius: 8px; }
+
+        .table-excel th {
+            background-color: #f1f5f9;
+            color: #334155;
+            border-bottom: 1px solid #cbd5e1;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            padding: 5px 6px;
+        }
+        .table-excel td {
+            font-size: 0.73rem;
+            vertical-align: middle;
+            color: #1e293b;
+            padding: 4px 6px !important;
+        }
+        .table-container {
+            max-height: calc(100vh - 165px);
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        .group-header-row td {
+            background-color: #e9f7ef !important;
+            color: #146c43 !important;
+            font-weight: 700;
+            font-size: 0.75rem;
+            border-top: 2px solid #a3cfbb;
+        }
+
+        .item-row {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .autocomplete-wrapper { position: relative; }
+        .autocomplete-list {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            z-index: 1050;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 175px;
+            overflow-y: auto;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+            display: none;
+        }
+        .autocomplete-list.show { display: block; }
+        .autocomplete-item {
+            padding: 6px 9px;
+            font-size: 0.74rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover { background-color: #e9f7ef; color: #146c43; }
+        .autocomplete-stok-badge { font-size: 0.68rem; font-weight: 600; color: #64748b; white-space: nowrap; margin-left: 6px; }
+
+        .dashboard-menu-wrapper {
+            padding: 16px 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .dashboard-title {
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .icon-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+        .icon-menu-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .icon-menu-card:hover {
+            border-color: #198754;
+            background: #ffffff;
+        }
+        .icon-menu-card i { font-size: 1.45rem; margin-bottom: 6px; display: block; }
+        .icon-menu-card span { font-size: 0.74rem; font-weight: 700; color: #1e293b; display: block; }
+
+        .android-dialog-content {
+            border-radius: 22px;
+            border: none;
+            background: #ffffff;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.2);
+            padding: 6px 4px 2px;
+        }
+        .android-dialog-title { font-size: 0.88rem; font-weight: 700; color: #0f172a; }
+        .android-dialog-body { font-size: 0.76rem; color: #475569; line-height: 1.4; }
+        .android-btn-pill { border-radius: 50rem; font-size: 0.74rem; font-weight: 600; padding: 5px 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="embed-shell">
+        <div class="mini-status-bar">
+            <div class="d-flex align-items-center gap-2">
+                <button id="headerBackBtn" class="btn-back-menu d-none" onclick="kembaliKeMenuUtama()">
+                    <i class="fas fa-arrow-left me-1"></i>Menu Staff
+                </button>
+                <span id="pageContextLabel" class="fw-semibold text-secondary">Menu Staff</span>
+            </div>
+            <div id="connectionStatus" class="connection-indicator">
+                <span class="status-dot connecting" id="statusDot"></span>
+                <span id="statusText">Menghubungkan...</span>
+            </div>
+        </div>
+
+        <div id="dashboardMenu" class="dashboard-menu-wrapper">
+            <div class="dashboard-title">Pilih Menu Staff</div>
+            <div class="icon-menu-grid">
+                <div class="icon-menu-card" onclick="bukaHalaman('menu-stok', 'Daftar Stok Barang Gudang', 'menu-stok-tab')">
+                    <i class="fas fa-boxes-stacked text-primary"></i>
+                    <span>Daftar Stok</span>
+                </div>
+                <div class="icon-menu-card" onclick="bukaHalaman('menu-form', 'Form Input Permintaan Barang', 'menu-form-tab')">
+                    <i class="fas fa-pen-to-square text-success"></i>
+                    <span>Input Request</span>
+                </div>
+                <div class="icon-menu-card" onclick="bukaHalaman('menu-riwayat', 'Riwayat Request Per Nama Barang', 'menu-riwayat-tab')">
+                    <i class="fas fa-table-list text-info"></i>
+                    <span>Riwayat Request</span>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav nav-pills d-none" id="pills-tab" role="tablist">
+            <li class="nav-item"><button class="nav-link" id="menu-stok-tab" data-bs-toggle="pill" data-bs-target="#menu-stok" type="button"></button></li>
+            <li class="nav-item"><button class="nav-link" id="menu-form-tab" data-bs-toggle="pill" data-bs-target="#menu-form" type="button"></button></li>
+            <li class="nav-item"><button class="nav-link" id="menu-riwayat-tab" data-bs-toggle="pill" data-bs-target="#menu-riwayat" type="button"></button></li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent" style="display: none;">
+
+            <!-- TAB 0: DAFTAR STOK -->
+            <div class="tab-pane fade" id="menu-stok" role="tabpanel">
+                <div class="card border rounded-3 bg-white">
+                    <div class="card-header bg-dark text-white py-1 px-2 d-flex justify-content-between align-items-center gap-2">
+                        <span class="fw-semibold" style="font-size: 0.74rem;">Stok Tersedia di Gudang</span>
+                        <div class="input-group" style="width: 160px;">
+                            <input type="text" id="inputPencarianStok" class="form-control form-control-sm py-0 px-2" style="height: 26px; font-size: 0.72rem;" placeholder="Cari barang..." oninput="filterStok()" onkeyup="filterStok()">
+                        </div>
+                    </div>
+                    <div class="card-body p-1">
+                        <div class="table-container table-responsive">
+                            <table class="table table-bordered table-hover table-excel align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" width="6%">No</th>
+                                        <th>Nama Barang</th>
+                                        <th class="text-center" width="22%">Jumlah Stok</th>
+                                        <th width="20%">Satuan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="barisDataStok">
+                                    <tr><td colspan="4" class="text-center text-muted py-3">Memuat data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-1 text-muted px-1 text-center" style="font-size: 0.68rem;">
+                            <span class="text-danger">*Mode tampilan (Hanya dapat dilihat)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 1: FORM REQUEST -->
+            <div class="tab-pane fade" id="menu-form" role="tabpanel">
+                <div class="card border rounded-3 bg-white">
+                    <div class="card-body p-2">
+                        <form id="formRequestStaff" onsubmit="handleRequestBarang(event)" autocomplete="off">
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label for="tanggal" class="form-label">Tanggal Request <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="tanggal" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="requestor" class="form-label">Peminta / Dept <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="requestor" placeholder="Contoh: Budi - Produksi" required>
+                                </div>
+                            </div>
+
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label fw-bold text-success mb-0"><i class="fas fa-boxes me-1"></i>Daftar Barang</label>
+                                <button type="button" class="btn btn-outline-success btn-sm py-0 px-2" style="font-size: 0.72rem;" onclick="tambahBarisItem()">
+                                    <i class="fas fa-plus me-1"></i>Tambah Barang
+                                </button>
+                            </div>
+
+                            <div id="containerItemBarang">
+                                <div class="item-row" id="row-0">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-7">
+                                            <label class="form-label">Nama Barang <span class="text-danger">*</span></label>
+                                            <div class="autocomplete-wrapper">
+                                                <input type="text" class="form-control nama-barang-input" placeholder="Ketik nama barang..." required>
+                                                <div class="autocomplete-list"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label">QTY <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control qty-input" min="1" placeholder="Jumlah" required>
+                                        </div>
+                                        <div class="col-1 text-end">
+                                            <button type="button" class="btn btn-outline-danger btn-sm p-1 px-2" style="visibility: hidden;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2 mt-2">
+                                <button type="reset" class="btn btn-outline-secondary" onclick="resetFormCustom()"><i class="fas fa-undo me-1"></i>Reset</button>
+                                <button type="submit" class="btn btn-success" id="btnSimpan">
+                                    <span id="btnSimpanText"><i class="fas fa-paper-plane me-1"></i>Kirim Request</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: RIWAYAT PER NAMA BARANG -->
+            <div class="tab-pane fade" id="menu-riwayat" role="tabpanel">
+                <div class="card border rounded-3 bg-white">
+                    <div class="card-header bg-dark text-white py-1 px-2 d-flex justify-content-between align-items-center gap-2">
+                        <span class="fw-semibold" style="font-size: 0.74rem;">Riwayat Per Nama Barang</span>
+                        <div class="input-group" style="width: 165px;">
+                            <input type="text" id="inputPencarian" class="form-control form-control-sm py-0 px-2" style="height: 26px; font-size: 0.72rem;" placeholder="Cari barang..." oninput="filterTabel()" onkeyup="filterTabel()">
+                        </div>
+                    </div>
+                    <div class="card-body p-1">
+                        <div class="table-container table-responsive">
+                            <table class="table table-bordered table-hover table-excel align-middle mb-0" id="tabelRiwayat">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" width="5%">No</th>
+                                        <th width="14%">Tanggal</th>
+                                        <th class="text-center" width="13%">Stok Awal</th>
+                                        <th class="text-center" width="11%">QTY</th>
+                                        <th class="text-center" width="13%">Sisa Stok</th>
+                                        <th>Requestor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="barisDataRiwayat">
+                                    <tr><td colspan="6" class="text-center text-muted py-3">Memuat data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-1 text-muted px-1" style="font-size: 0.68rem;">
+                            <span>Tanggal: dd/mm/yyyy</span>
+                            <span>Firebase DB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- POP-UP INFORMASI ANDROID MODERN -->
+    <div class="modal fade" id="androidModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content android-dialog-content">
+                <div class="modal-header border-0 pb-1">
+                    <h6 class="modal-title android-dialog-title" id="androidModalTitle">Informasi</h6>
+                </div>
+                <div class="modal-body android-dialog-body pt-1 pb-2">
+                    <p id="androidModalMessage" class="mb-0">Pesan...</p>
+                </div>
+                <div class="modal-footer border-0 pt-1">
+                    <button type="button" class="btn btn-success android-btn-pill" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, update, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_QcHO8eB6JsJZslr9kFDLIhgZu0cXHBI",
+            authDomain: "material-incomming.firebaseapp.com",
+            databaseURL: "https://material-incomming-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "material-incomming",
+            storageBucket: "material-incomming.firebasestorage.app",
+            messagingSenderId: "323944053500",
+            appId: "1:323944053500:web:b800addbf65b915dd33579"
+        };
+
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+
+        function updateConnectionStatus(status, message) {
+            statusDot.className = 'status-dot ' + status;
+            statusText.textContent = message;
+        }
+
+        function normalizeName(str) {
+            return String(str || '').trim().replace(/\s+/g, ' ').toLowerCase();
+        }
+
+        function formatTanggalID(tgl) {
+            if (!tgl) return '-';
+            const str = String(tgl).trim();
+            const matchIso = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (matchIso) {
+                const thn = matchIso[1];
+                const bln = String(matchIso[2]).padStart(2, '0');
+                const hri = String(matchIso[3]).padStart(2, '0');
+                return `${hri}/${bln}/${thn}`;
+            }
+            return str;
+        }
+
+        window.bukaHalaman = function(tabTargetId, subtitleText, tabTriggerId) {
+            document.getElementById('dashboardMenu').style.display = 'none';
+            document.getElementById('pills-tabContent').style.display = 'block';
+            document.getElementById('headerBackBtn').classList.remove('d-none');
+            document.getElementById('pageContextLabel').textContent = subtitleText;
+
+            const triggerEl = document.getElementById(tabTriggerId);
+            if (triggerEl) {
+                new bootstrap.Tab(triggerEl).show();
+            }
+        };
+
+        window.kembaliKeMenuUtama = function() {
+            document.getElementById('pills-tabContent').style.display = 'none';
+            document.getElementById('dashboardMenu').style.display = 'block';
+            document.getElementById('headerBackBtn').classList.add('d-none');
+            document.getElementById('pageContextLabel').textContent = 'Menu Staff';
+        };
+
+        window.showAndroidAlert = function(title, message, isError = false) {
+            document.getElementById('androidModalTitle').innerHTML = isError ?
+                '<i class="fas fa-exclamation-circle me-1 text-danger"></i>' + title :
+                '<i class="fas fa-check-circle me-1 text-success"></i>' + title;
+            document.getElementById('androidModalMessage').textContent = message;
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('androidModal')).show();
+        };
+
+        let dataRiwayat = [];
+        let dataStokGlobal = [];
+
+        function getSortedStokList() {
+            return [...dataStokGlobal].sort((a, b) =>
+                String(a.namaBarang || '').localeCompare(String(b.namaBarang || ''), 'id', { sensitivity: 'base' })
+            );
+        }
+
+        function renderSuggestions(inputEl, listEl) {
+            const queryText = normalizeName(inputEl.value);
+            const sortedList = getSortedStokList();
+            const matches = queryText
+                ? sortedList.filter(item => normalizeName(item.namaBarang).includes(queryText))
+                : sortedList;
+
+            listEl.innerHTML = '';
+            if (matches.length === 0) {
+                listEl.innerHTML = `<div class="autocomplete-item text-muted">Tidak ada barang cocok</div>`;
+                listEl.classList.add('show');
+                return;
+            }
+
+            matches.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'autocomplete-item';
+                const stokText = `${Number(item.jumlah).toLocaleString()} ${item.satuan || ''}`.trim();
+                div.innerHTML = `
+                    <span><strong>${item.namaBarang}</strong></span>
+                    <span class="autocomplete-stok-badge">Stok: ${stokText}</span>
+                `;
+                div.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    inputEl.value = item.namaBarang;
+                    listEl.classList.remove('show');
+                });
+                listEl.appendChild(div);
+            });
+            listEl.classList.add('show');
+        }
+
+        // Dideklarasikan di scope modul agar selalu tersedia saat tambah/reset baris
+        window.bindAutocompleteEvents = function(inputEl) {
+            if (!inputEl || inputEl.dataset.acBound === '1') return;
+            inputEl.dataset.acBound = '1';
+            const wrapper = inputEl.closest('.autocomplete-wrapper');
+            const listEl = wrapper ? wrapper.querySelector('.autocomplete-list') : null;
+            if (!listEl) return;
+
+            inputEl.addEventListener('focus', () => renderSuggestions(inputEl, listEl));
+            inputEl.addEventListener('input', () => renderSuggestions(inputEl, listEl));
+            inputEl.addEventListener('blur', () => setTimeout(() => listEl.classList.remove('show'), 140));
+        };
+
+        let rowIndexCounter = 0;
+
+        function buildRowHtml(idNum, showTrash) {
+            const trashBtn = showTrash
+                ? `<button type="button" class="btn btn-outline-danger btn-sm p-1 px-2" onclick="hapusBarisItem('row-${idNum}')" title="Hapus baris"><i class="fas fa-trash"></i></button>`
+                : `<button type="button" class="btn btn-outline-danger btn-sm p-1 px-2" style="visibility: hidden;"><i class="fas fa-trash"></i></button>`;
+
+            return `
+                <div class="row g-2 align-items-end">
+                    <div class="col-7">
+                        <label class="form-label">Nama Barang <span class="text-danger">*</span></label>
+                        <div class="autocomplete-wrapper">
+                            <input type="text" class="form-control nama-barang-input" placeholder="Ketik nama barang..." required>
+                            <div class="autocomplete-list"></div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label">QTY <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control qty-input" min="1" placeholder="Jumlah" required>
+                    </div>
+                    <div class="col-1 text-end">${trashBtn}</div>
+                </div>
+            `;
+        }
+
+        window.tambahBarisItem = function() {
+            rowIndexCounter++;
+            const container = document.getElementById('containerItemBarang');
+            const newRow = document.createElement('div');
+            newRow.className = 'item-row';
+            newRow.id = `row-${rowIndexCounter}`;
+            newRow.innerHTML = buildRowHtml(rowIndexCounter, true);
+            container.appendChild(newRow);
+            window.bindAutocompleteEvents(newRow.querySelector('.nama-barang-input'));
+        };
+
+        window.hapusBarisItem = function(rowId) {
+            const rowEl = document.getElementById(rowId);
+            if (rowEl) rowEl.remove();
+        };
+
+        window.resetFormCustom = function() {
+            document.getElementById('formRequestStaff').reset();
+            document.getElementById('tanggal').valueAsDate = new Date();
+            const container = document.getElementById('containerItemBarang');
+            container.innerHTML = `<div class="item-row" id="row-0">${buildRowHtml(0, false)}</div>`;
+            rowIndexCounter = 0;
+            window.bindAutocompleteEvents(container.querySelector('.nama-barang-input'));
+        };
+
+        document.querySelectorAll('.nama-barang-input').forEach(window.bindAutocompleteEvents);
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.autocomplete-wrapper')) {
+                document.querySelectorAll('.autocomplete-list.show').forEach(el => el.classList.remove('show'));
+            }
+        });
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+            updateConnectionStatus('connected', 'Terhubung');
+            document.getElementById('tanggal').valueAsDate = new Date();
+
+            function buildEnrichedRiwayat(riwayatList) {
+                const byBarang = new Map();
+                riwayatList.forEach(item => {
+                    const key = normalizeName(item.namaBarang);
+                    if (!byBarang.has(key)) byBarang.set(key, []);
+                    byBarang.get(key).push(item);
+                });
+
+                const enrichedMap = new Map();
+                byBarang.forEach((items, key) => {
+                    const sortedAsc = [...items].sort((a, b) => (Number(a.createdAt) || 0) - (Number(b.createdAt) || 0));
+                    const stokMatch = dataStokGlobal.find(s => normalizeName(s.namaBarang) === key);
+                    let runningSisa = stokMatch ? Number(stokMatch.jumlah) || 0 : null;
+
+                    for (let i = sortedAsc.length - 1; i >= 0; i--) {
+                        const tx = sortedAsc[i];
+                        const qtyNum = Number(tx.qty) || 0;
+                        if (runningSisa !== null) {
+                            const sisaSetelahTx = runningSisa;
+                            const stokAwalTx = sisaSetelahTx + qtyNum;
+                            enrichedMap.set(tx.id, {
+                                ...tx,
+                                stokAwal: stokAwalTx,
+                                sisaStok: sisaSetelahTx,
+                                stokTerkini: stokMatch ? Number(stokMatch.jumlah) : sisaSetelahTx
+                            });
+                            runningSisa = stokAwalTx;
+                        } else {
+                            const fallbackSisa = tx.sisaStok !== undefined && tx.sisaStok !== null ? Number(tx.sisaStok) : null;
+                            const fallbackAwal = fallbackSisa !== null ? fallbackSisa + qtyNum : null;
+                            enrichedMap.set(tx.id, {
+                                ...tx,
+                                stokAwal: fallbackAwal,
+                                sisaStok: fallbackSisa,
+                                stokTerkini: fallbackSisa
+                            });
+                        }
+                    }
+                });
+
+                return riwayatList.map(item => enrichedMap.get(item.id) || item);
+            }
+
+            const refStok = query(ref(db, 'stok_barang'), orderByChild('namaBarang'));
+            onValue(refStok, (snapshot) => {
+                dataStokGlobal = [];
+                snapshot.forEach((child) => {
+                    const val = child.val() || {};
+                    const stokAngka = Number(val.jumlah !== undefined ? val.jumlah : (val.stok || 0));
+                    dataStokGlobal.push({ id: child.key, ...val, jumlah: stokAngka });
+                });
+                renderStokTabel(getSortedStokList());
+                filterTabel();
+            });
+
+            window.renderStokTabel = function(data) {
+                const tbody = document.getElementById('barisDataStok');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">Tidak ada data stok di gudang.</td></tr>`;
+                    return;
+                }
+
+                data.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="text-center text-muted fw-bold">${index + 1}</td>
+                        <td><strong>${item.namaBarang}</strong></td>
+                        <td class="text-center fw-bold ${item.jumlah <= 5 ? 'text-danger' : 'text-primary'}">${Number(item.jumlah).toLocaleString()}</td>
+                        <td><span class="text-uppercase">${item.satuan || '-'}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            };
+
+            window.filterStok = function() {
+                const kw = normalizeName(document.getElementById('inputPencarianStok').value);
+                const filtered = getSortedStokList().filter(i => normalizeName(i.namaBarang).includes(kw));
+                renderStokTabel(filtered);
+            };
+
+            window.handleRequestBarang = async function(event) {
+                event.preventDefault();
+                const btn = document.getElementById('btnSimpan');
+                const btnText = document.getElementById('btnSimpanText');
+                const tanggalVal = document.getElementById('tanggal').value;
+                const requestorVal = document.getElementById('requestor').value.trim();
+                const namaBarangInputs = document.querySelectorAll('.nama-barang-input');
+                const qtyInputs = document.querySelectorAll('.qty-input');
+
+                const workingStokMap = new Map();
+                dataStokGlobal.forEach(s => {
+                    workingStokMap.set(normalizeName(s.namaBarang), { ...s, jumlah: Number(s.jumlah) || 0 });
+                });
+
+                const itemsToProcess = [];
+                for (let i = 0; i < namaBarangInputs.length; i++) {
+                    const namaBarang = namaBarangInputs[i].value.trim();
+                    const qty = Number(qtyInputs[i].value);
+                    if (!namaBarang || !Number.isFinite(qty) || qty <= 0) continue;
+
+                    const stokMatch = workingStokMap.get(normalizeName(namaBarang));
+                    if (!stokMatch) {
+                        showAndroidAlert("Stok Tidak Ditemukan", `Barang "${namaBarang}" tidak ditemukan di stok gudang.`, true);
+                        return;
+                    }
+                    if (stokMatch.jumlah < qty) {
+                        showAndroidAlert("Stok Tidak Cukup", `Stok "${stokMatch.namaBarang}" tersisa ${stokMatch.jumlah}, tidak cukup untuk request ${qty}.`, true);
+                        return;
+                    }
+
+                    const stokAwalItem = stokMatch.jumlah;
+                    const sisaSesudahRequest = stokAwalItem - qty;
+                    stokMatch.jumlah = sisaSesudahRequest;
+
+                    itemsToProcess.push({
+                        stokId: stokMatch.id,
+                        namaBarang: stokMatch.namaBarang,
+                        stokAwal: stokAwalItem,
+                        qty: qty,
+                        sisaStok: sisaSesudahRequest
+                    });
+                }
+
+                if (itemsToProcess.length === 0) {
+                    showAndroidAlert("Perhatian", "Masukkan minimal satu barang dengan QTY valid.", true);
+                    return;
+                }
+
+                btn.disabled = true;
+                btnText.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Memproses...';
+
+                try {
+                    const dbRef = ref(db, 'barang_keluar');
+                    const timestampBase = Date.now();
+
+                    for (let i = 0; i < itemsToProcess.length; i++) {
+                        const { stokId, namaBarang, stokAwal, qty, sisaStok } = itemsToProcess[i];
+                        await update(ref(db, `stok_barang/${stokId}`), { jumlah: sisaStok });
+                        await push(dbRef, {
+                            tanggal: tanggalVal,
+                            requestor: requestorVal,
+                            namaBarang: namaBarang,
+                            stokAwal: stokAwal,
+                            qty: qty,
+                            sisaStok: sisaStok,
+                            createdAt: timestampBase + i
+                        });
+                    }
+
+                    showAndroidAlert("Berhasil", "Request terkirim dan sisa stok otomatis berkurang!");
+                    resetFormCustom();
+                } catch (error) {
+                    showAndroidAlert("Gagal", error.message, true);
+                } finally {
+                    btn.disabled = false;
+                    btnText.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Kirim Request';
+                }
+            };
+
+            const dbRef = query(ref(db, 'barang_keluar'), orderByChild('createdAt'));
+            onValue(dbRef, (snapshot) => {
+                dataRiwayat = [];
+                snapshot.forEach((child) => { dataRiwayat.push({ id: child.key, ...child.val() }); });
+                dataRiwayat.reverse();
+                filterTabel();
+            });
+
+            window.renderTabel = function(data) {
+                const tbody = document.getElementById('barisDataRiwayat');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">Belum ada request yang cocok.</td></tr>`;
+                    return;
+                }
+
+                const enriched = buildEnrichedRiwayat(data);
+                const grouped = new Map();
+                enriched.forEach(item => {
+                    const key = normalizeName(item.namaBarang);
+                    if (!grouped.has(key)) {
+                        grouped.set(key, { label: item.namaBarang.trim(), rows: [] });
+                    }
+                    grouped.get(key).rows.push(item);
+                });
+
+                const sortedGroups = [...grouped.values()].sort((a, b) =>
+                    a.label.localeCompare(b.label, 'id', { sensitivity: 'base' })
+                );
+
+                let rowCounter = 0;
+                sortedGroups.forEach(group => {
+                    const totalQtyKeluar = group.rows.reduce((sum, r) => sum + (Number(r.qty) || 0), 0);
+                    const stokMatch = dataStokGlobal.find(s => normalizeName(s.namaBarang) === normalizeName(group.label));
+                    const satuanLabel = stokMatch && stokMatch.satuan ? ` ${stokMatch.satuan}` : '';
+                    const stokTerkiniText = stokMatch
+                        ? `${Number(stokMatch.jumlah).toLocaleString()}${satuanLabel}`
+                        : '-';
+
+                    const headerTr = document.createElement('tr');
+                    headerTr.className = 'group-header-row';
+                    headerTr.innerHTML = `
+                        <td colspan="6">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-1">
+                                <span><i class="fas fa-box me-1"></i>${group.label}</span>
+                                <span class="d-flex flex-wrap gap-1">
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                        Total Keluar: -${totalQtyKeluar.toLocaleString()}${satuanLabel}
+                                    </span>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                        Stok Terkini: ${stokTerkiniText}
+                                    </span>
+                                </span>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(headerTr);
+
+                    group.rows.forEach(item => {
+                        rowCounter++;
+                        const stokAwalText = item.stokAwal !== null && item.stokAwal !== undefined ? Number(item.stokAwal).toLocaleString() : '-';
+                        const sisaText = item.sisaStok !== null && item.sisaStok !== undefined ? Number(item.sisaStok).toLocaleString() : '-';
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="text-center text-muted fw-bold">${rowCounter}</td>
+                            <td>${formatTanggalID(item.tanggal)}</td>
+                            <td class="text-center fw-bold text-secondary">${stokAwalText}</td>
+                            <td class="text-center fw-bold text-danger">-${Number(item.qty).toLocaleString()}</td>
+                            <td class="text-center fw-bold text-primary">${sisaText}</td>
+                            <td>${item.requestor}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+            };
+
+            window.filterTabel = function() {
+                const kw = normalizeName(document.getElementById('inputPencarian').value);
+                const filtered = kw
+                    ? dataRiwayat.filter(i =>
+                        normalizeName(i.namaBarang).includes(kw) || normalizeName(i.requestor).includes(kw)
+                    )
+                    : dataRiwayat;
+                renderTabel(filtered);
+            };
+
+        } catch (e) {
+            updateConnectionStatus('error', 'Gagal Koneksi');
+        }
+    </script>
+</body>
+</html>
