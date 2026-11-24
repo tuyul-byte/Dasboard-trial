@@ -371,15 +371,14 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, update, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // GANTI DENGAN KONFIGURASI FIREBASE ANDA
         const firebaseConfig = {
             apiKey: "AIzaSyA_QcHO8eB6JsJZslr9kFDLIhgZu0cXHBI",
-  authDomain: "material-incomming.firebaseapp.com",
-  databaseURL: "https://material-incomming-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "material-incomming",
-  storageBucket: "material-incomming.firebasestorage.app",
-  messagingSenderId: "323944053500",
-  appId: "1:323944053500:web:b800addbf65b915dd33579"
+            authDomain: "material-incomming.firebaseapp.com",
+            databaseURL: "https://material-incomming-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "material-incomming",
+            storageBucket: "material-incomming.firebasestorage.app",
+            messagingSenderId: "323944053500",
+            appId: "1:323944053500:web:b800addbf65b915dd33579"
         };
 
         const statusDot = document.getElementById('statusDot');
@@ -434,6 +433,60 @@
             bootstrap.Modal.getOrCreateInstance(document.getElementById('androidModal')).show();
         };
 
+        let dataRiwayat = [];
+        let dataStokGlobal = [];
+
+        function getSortedStokList() {
+            return [...dataStokGlobal].sort((a, b) =>
+                String(a.namaBarang || '').localeCompare(String(b.namaBarang || ''), 'id', { sensitivity: 'base' })
+            );
+        }
+
+        function renderSuggestions(inputEl, listEl) {
+            const queryText = normalizeName(inputEl.value);
+            const sortedList = getSortedStokList();
+            const matches = queryText
+                ? sortedList.filter(item => normalizeName(item.namaBarang).includes(queryText))
+                : sortedList;
+
+            listEl.innerHTML = '';
+            if (matches.length === 0) {
+                listEl.innerHTML = `<div class="autocomplete-item text-muted">Tidak ada barang cocok</div>`;
+                listEl.classList.add('show');
+                return;
+            }
+
+            matches.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'autocomplete-item';
+                const stokText = `${Number(item.jumlah).toLocaleString()} ${item.satuan || ''}`.trim();
+                div.innerHTML = `
+                    <span><strong>${item.namaBarang}</strong></span>
+                    <span class="autocomplete-stok-badge">Stok: ${stokText}</span>
+                `;
+                div.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    inputEl.value = item.namaBarang;
+                    listEl.classList.remove('show');
+                });
+                listEl.appendChild(div);
+            });
+            listEl.classList.add('show');
+        }
+
+        // Dideklarasikan di scope modul agar selalu tersedia saat tambah/reset baris
+        window.bindAutocompleteEvents = function(inputEl) {
+            if (!inputEl || inputEl.dataset.acBound === '1') return;
+            inputEl.dataset.acBound = '1';
+            const wrapper = inputEl.closest('.autocomplete-wrapper');
+            const listEl = wrapper ? wrapper.querySelector('.autocomplete-list') : null;
+            if (!listEl) return;
+
+            inputEl.addEventListener('focus', () => renderSuggestions(inputEl, listEl));
+            inputEl.addEventListener('input', () => renderSuggestions(inputEl, listEl));
+            inputEl.addEventListener('blur', () => setTimeout(() => listEl.classList.remove('show'), 140));
+        };
+
         let rowIndexCounter = 0;
 
         function buildRowHtml(idNum, showTrash) {
@@ -467,7 +520,7 @@
             newRow.id = `row-${rowIndexCounter}`;
             newRow.innerHTML = buildRowHtml(rowIndexCounter, true);
             container.appendChild(newRow);
-            bindAutocompleteEvents(newRow.querySelector('.nama-barang-input'));
+            window.bindAutocompleteEvents(newRow.querySelector('.nama-barang-input'));
         };
 
         window.hapusBarisItem = function(rowId) {
@@ -481,23 +534,21 @@
             const container = document.getElementById('containerItemBarang');
             container.innerHTML = `<div class="item-row" id="row-0">${buildRowHtml(0, false)}</div>`;
             rowIndexCounter = 0;
-            bindAutocompleteEvents(container.querySelector('.nama-barang-input'));
+            window.bindAutocompleteEvents(container.querySelector('.nama-barang-input'));
         };
+
+        document.querySelectorAll('.nama-barang-input').forEach(window.bindAutocompleteEvents);
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.autocomplete-wrapper')) {
+                document.querySelectorAll('.autocomplete-list.show').forEach(el => el.classList.remove('show'));
+            }
+        });
 
         try {
             const app = initializeApp(firebaseConfig);
             const db = getDatabase(app);
             updateConnectionStatus('connected', 'Terhubung');
             document.getElementById('tanggal').valueAsDate = new Date();
-
-            let dataRiwayat = [];
-            let dataStokGlobal = [];
-
-            function getSortedStokList() {
-                return [...dataStokGlobal].sort((a, b) =>
-                    String(a.namaBarang || '').localeCompare(String(b.namaBarang || ''), 'id', { sensitivity: 'base' })
-                );
-            }
 
             function buildEnrichedRiwayat(riwayatList) {
                 const byBarang = new Map();
@@ -541,57 +592,6 @@
 
                 return riwayatList.map(item => enrichedMap.get(item.id) || item);
             }
-
-            function renderSuggestions(inputEl, listEl) {
-                const queryText = normalizeName(inputEl.value);
-                const sortedList = getSortedStokList();
-                const matches = queryText
-                    ? sortedList.filter(item => normalizeName(item.namaBarang).includes(queryText))
-                    : sortedList;
-
-                listEl.innerHTML = '';
-                if (matches.length === 0) {
-                    listEl.innerHTML = `<div class="autocomplete-item text-muted">Tidak ada barang cocok</div>`;
-                    listEl.classList.add('show');
-                    return;
-                }
-
-                matches.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'autocomplete-item';
-                    const stokText = `${Number(item.jumlah).toLocaleString()} ${item.satuan || ''}`.trim();
-                    div.innerHTML = `
-                        <span><strong>${item.namaBarang}</strong></span>
-                        <span class="autocomplete-stok-badge">Stok: ${stokText}</span>
-                    `;
-                    div.addEventListener('mousedown', (e) => {
-                        e.preventDefault();
-                        inputEl.value = item.namaBarang;
-                        listEl.classList.remove('show');
-                    });
-                    listEl.appendChild(div);
-                });
-                listEl.classList.add('show');
-            }
-
-            function bindAutocompleteEvents(inputEl) {
-                if (!inputEl || inputEl.dataset.acBound === '1') return;
-                inputEl.dataset.acBound = '1';
-                const wrapper = inputEl.closest('.autocomplete-wrapper');
-                const listEl = wrapper ? wrapper.querySelector('.autocomplete-list') : null;
-                if (!listEl) return;
-
-                inputEl.addEventListener('focus', () => renderSuggestions(inputEl, listEl));
-                inputEl.addEventListener('input', () => renderSuggestions(inputEl, listEl));
-                inputEl.addEventListener('blur', () => setTimeout(() => listEl.classList.remove('show'), 140));
-            }
-
-            document.querySelectorAll('.nama-barang-input').forEach(bindAutocompleteEvents);
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.autocomplete-wrapper')) {
-                    document.querySelectorAll('.autocomplete-list.show').forEach(el => el.classList.remove('show'));
-                }
-            });
 
             const refStok = query(ref(db, 'stok_barang'), orderByChild('namaBarang'));
             onValue(refStok, (snapshot) => {
