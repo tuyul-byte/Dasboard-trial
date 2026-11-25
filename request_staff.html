@@ -264,7 +264,7 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="requestor" class="form-label">Peminta / Dept <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="requestor" placeholder="Contoh: Budi - Produksi" required>
+                                    <input type="text" class="form-control" id="requestor" placeholder="Contoh: Budi - Produksi" autocomplete="off" autocorrect="off" spellcheck="false" required>
                                 </div>
                             </div>
 
@@ -282,7 +282,7 @@
                                         <div class="col-7">
                                             <label class="form-label">Nama Barang <span class="text-danger">*</span></label>
                                             <div class="autocomplete-wrapper">
-                                                <input type="text" class="form-control nama-barang-input" placeholder="Ketik nama barang..." required>
+                                                <input type="text" class="form-control nama-barang-input" placeholder="Ketik nama barang..." autocomplete="off" required>
                                                 <div class="autocomplete-list"></div>
                                             </div>
                                         </div>
@@ -389,8 +389,19 @@
             statusText.textContent = message;
         }
 
+        function cleanText(str) {
+            return String(str || '').trim().replace(/\s+/g, ' ');
+        }
+
         function normalizeName(str) {
-            return String(str || '').trim().replace(/\s+/g, ' ').toLowerCase();
+            return cleanText(str).toLowerCase();
+        }
+
+        function getRequestorName(item) {
+            if (!item || typeof item !== 'object') return '-';
+            const raw = item.requestor ?? item.peminta ?? item.namaRequestor ?? item.dept ?? '';
+            const cleaned = cleanText(raw);
+            return cleaned || '-';
         }
 
         function formatTanggalID(tgl) {
@@ -435,6 +446,7 @@
 
         let dataRiwayat = [];
         let dataStokGlobal = [];
+        let isSubmittingRequest = false;
 
         function getSortedStokList() {
             return [...dataStokGlobal].sort((a, b) =>
@@ -474,7 +486,6 @@
             listEl.classList.add('show');
         }
 
-        // Dideklarasikan di scope modul agar selalu tersedia saat tambah/reset baris
         window.bindAutocompleteEvents = function(inputEl) {
             if (!inputEl || inputEl.dataset.acBound === '1') return;
             inputEl.dataset.acBound = '1';
@@ -499,7 +510,7 @@
                     <div class="col-7">
                         <label class="form-label">Nama Barang <span class="text-danger">*</span></label>
                         <div class="autocomplete-wrapper">
-                            <input type="text" class="form-control nama-barang-input" placeholder="Ketik nama barang..." required>
+                            <input type="text" class="form-control nama-barang-input" placeholder="Ketik nama barang..." autocomplete="off" required>
                             <div class="autocomplete-list"></div>
                         </div>
                     </div>
@@ -531,6 +542,7 @@
         window.resetFormCustom = function() {
             document.getElementById('formRequestStaff').reset();
             document.getElementById('tanggal').valueAsDate = new Date();
+            document.getElementById('requestor').value = '';
             const container = document.getElementById('containerItemBarang');
             container.innerHTML = `<div class="item-row" id="row-0">${buildRowHtml(0, false)}</div>`;
             rowIndexCounter = 0;
@@ -553,21 +565,37 @@
             function buildEnrichedRiwayat(riwayatList) {
                 const byBarang = new Map();
                 riwayatList.forEach(item => {
-                    const key = normalizeName(item.namaBarang);
+                    const clone = { ...item, requestor: getRequestorName(item) };
+                    const key = normalizeName(clone.namaBarang);
                     if (!byBarang.has(key)) byBarang.set(key, []);
-                    byBarang.get(key).push(item);
+                    byBarang.get(key).push(clone);
                 });
 
                 const enrichedMap = new Map();
                 byBarang.forEach((items, key) => {
-                    const sortedAsc = [...items].sort((a, b) => (Number(a.createdAt) || 0) - (Number(b.createdAt) || 0));
+                    const sortedAsc = [...items].sort((a, b) => {
+                        const diff = (Number(a.createdAt) || 0) - (Number(b.createdAt) || 0);
+                        return diff !== 0 ? diff : String(a.id || '').localeCompare(String(b.id || ''));
+                    });
+
                     const stokMatch = dataStokGlobal.find(s => normalizeName(s.namaBarang) === key);
                     let runningSisa = stokMatch ? Number(stokMatch.jumlah) || 0 : null;
 
                     for (let i = sortedAsc.length - 1; i >= 0; i--) {
-                        const tx = sortedAsc[i];
+                        const tx = { ...sortedAsc[i] };
                         const qtyNum = Number(tx.qty) || 0;
-                        if (runningSisa !== null) {
+                        const hasSavedAwal = tx.stokAwal !== undefined && tx.stokAwal !== null && tx.stokAwal !== '' && Number.isFinite(Number(tx.stokAwal));
+                        const hasSavedSisa = tx.sisaStok !== undefined && tx.sisaStok !== null && tx.sisaStok !== '' && Number.isFinite(Number(tx.sisaStok));
+
+                        if (hasSavedAwal && hasSavedSisa) {
+                            enrichedMap.set(tx.id, {
+                                ...tx,
+                                stokAwal: Number(tx.stokAwal),
+                                sisaStok: Number(tx.sisaStok),
+                                stokTerkini: stokMatch ? Number(stokMatch.jumlah) : Number(tx.sisaStok)
+                            });
+                            runningSisa = Number(tx.stokAwal);
+                        } else if (runningSisa !== null) {
                             const sisaSetelahTx = runningSisa;
                             const stokAwalTx = sisaSetelahTx + qtyNum;
                             enrichedMap.set(tx.id, {
@@ -578,8 +606,10 @@
                             });
                             runningSisa = stokAwalTx;
                         } else {
-                            const fallbackSisa = tx.sisaStok !== undefined && tx.sisaStok !== null ? Number(tx.sisaStok) : null;
-                            const fallbackAwal = fallbackSisa !== null ? fallbackSisa + qtyNum : null;
+                            const fallbackSisa = hasSavedSisa ? Number(tx.sisaStok) : null;
+                            const fallbackAwal = hasSavedAwal
+                                ? Number(tx.stokAwal)
+                                : (fallbackSisa !== null ? fallbackSisa + qtyNum : null);
                             enrichedMap.set(tx.id, {
                                 ...tx,
                                 stokAwal: fallbackAwal,
@@ -590,17 +620,21 @@
                     }
                 });
 
-                return riwayatList.map(item => enrichedMap.get(item.id) || item);
+                return riwayatList.map(item => {
+                    const base = { ...item, requestor: getRequestorName(item) };
+                    return enrichedMap.get(item.id) || base;
+                });
             }
 
             const refStok = query(ref(db, 'stok_barang'), orderByChild('namaBarang'));
             onValue(refStok, (snapshot) => {
-                dataStokGlobal = [];
+                const stokMap = new Map();
                 snapshot.forEach((child) => {
                     const val = child.val() || {};
                     const stokAngka = Number(val.jumlah !== undefined ? val.jumlah : (val.stok || 0));
-                    dataStokGlobal.push({ id: child.key, ...val, jumlah: stokAngka });
+                    stokMap.set(child.key, { id: child.key, ...val, namaBarang: cleanText(val.namaBarang), jumlah: stokAngka });
                 });
+                dataStokGlobal = Array.from(stokMap.values());
                 renderStokTabel(getSortedStokList());
                 filterTabel();
             });
@@ -634,12 +668,19 @@
 
             window.handleRequestBarang = async function(event) {
                 event.preventDefault();
+                if (isSubmittingRequest) return;
+
                 const btn = document.getElementById('btnSimpan');
                 const btnText = document.getElementById('btnSimpanText');
                 const tanggalVal = document.getElementById('tanggal').value;
-                const requestorVal = document.getElementById('requestor').value.trim();
+                const requestorVal = cleanText(document.getElementById('requestor').value);
                 const namaBarangInputs = document.querySelectorAll('.nama-barang-input');
                 const qtyInputs = document.querySelectorAll('.qty-input');
+
+                if (!requestorVal) {
+                    showAndroidAlert("Perhatian", "Isi nama Peminta / Dept terlebih dahulu.", true);
+                    return;
+                }
 
                 const workingStokMap = new Map();
                 dataStokGlobal.forEach(s => {
@@ -648,7 +689,7 @@
 
                 const itemsToProcess = [];
                 for (let i = 0; i < namaBarangInputs.length; i++) {
-                    const namaBarang = namaBarangInputs[i].value.trim();
+                    const namaBarang = cleanText(namaBarangInputs[i].value);
                     const qty = Number(qtyInputs[i].value);
                     if (!namaBarang || !Number.isFinite(qty) || qty <= 0) continue;
 
@@ -680,6 +721,7 @@
                     return;
                 }
 
+                isSubmittingRequest = true;
                 btn.disabled = true;
                 btnText.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Memproses...';
 
@@ -706,6 +748,7 @@
                 } catch (error) {
                     showAndroidAlert("Gagal", error.message, true);
                 } finally {
+                    isSubmittingRequest = false;
                     btn.disabled = false;
                     btnText.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Kirim Request';
                 }
@@ -713,9 +756,19 @@
 
             const dbRef = query(ref(db, 'barang_keluar'), orderByChild('createdAt'));
             onValue(dbRef, (snapshot) => {
-                dataRiwayat = [];
-                snapshot.forEach((child) => { dataRiwayat.push({ id: child.key, ...child.val() }); });
-                dataRiwayat.reverse();
+                const mapUnik = new Map();
+                snapshot.forEach((child) => {
+                    const val = child.val() || {};
+                    mapUnik.set(child.key, {
+                        id: child.key,
+                        ...val,
+                        namaBarang: cleanText(val.namaBarang),
+                        requestor: getRequestorName(val)
+                    });
+                });
+                dataRiwayat = Array.from(mapUnik.values()).sort(
+                    (a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0)
+                );
                 filterTabel();
             });
 
@@ -733,9 +786,9 @@
                 enriched.forEach(item => {
                     const key = normalizeName(item.namaBarang);
                     if (!grouped.has(key)) {
-                        grouped.set(key, { label: item.namaBarang.trim(), rows: [] });
+                        grouped.set(key, { label: cleanText(item.namaBarang), rows: [] });
                     }
-                    grouped.get(key).rows.push(item);
+                    grouped.get(key).rows.push({ ...item, requestor: getRequestorName(item) });
                 });
 
                 const sortedGroups = [...grouped.values()].sort((a, b) =>
@@ -774,6 +827,7 @@
                         rowCounter++;
                         const stokAwalText = item.stokAwal !== null && item.stokAwal !== undefined ? Number(item.stokAwal).toLocaleString() : '-';
                         const sisaText = item.sisaStok !== null && item.sisaStok !== undefined ? Number(item.sisaStok).toLocaleString() : '-';
+                        const namaRequestor = getRequestorName(item);
 
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
@@ -782,7 +836,7 @@
                             <td class="text-center fw-bold text-secondary">${stokAwalText}</td>
                             <td class="text-center fw-bold text-danger">-${Number(item.qty).toLocaleString()}</td>
                             <td class="text-center fw-bold text-primary">${sisaText}</td>
-                            <td>${item.requestor}</td>
+                            <td>${namaRequestor}</td>
                         `;
                         tbody.appendChild(tr);
                     });
@@ -793,11 +847,20 @@
                 const kw = normalizeName(document.getElementById('inputPencarian').value);
                 const filtered = kw
                     ? dataRiwayat.filter(i =>
-                        normalizeName(i.namaBarang).includes(kw) || normalizeName(i.requestor).includes(kw)
+                        normalizeName(i.namaBarang).includes(kw) || normalizeName(getRequestorName(i)).includes(kw)
                     )
                     : dataRiwayat;
                 renderTabel(filtered);
             };
+
+            const tabParam = new URLSearchParams(window.location.search).get('tab');
+            if (tabParam === 'menu-form') {
+                window.bukaHalaman('menu-form', 'Form Input Permintaan Barang', 'menu-form-tab');
+            } else if (tabParam === 'menu-stok') {
+                window.bukaHalaman('menu-stok', 'Daftar Stok Barang Gudang', 'menu-stok-tab');
+            } else if (tabParam === 'menu-riwayat') {
+                window.bukaHalaman('menu-riwayat', 'Riwayat Request Per Nama Barang', 'menu-riwayat-tab');
+            }
 
         } catch (e) {
             updateConnectionStatus('error', 'Gagal Koneksi');
